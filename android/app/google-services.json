@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "294355361521",
+    "project_id": "tramatec-app",
+    "storage_bucket": "tramatec-app.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:294355361521:android:af958d23f6dcd8d23e9350",
+        "android_client_info": {
+          "package_name": "com.example.tramatec_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "294355361521-9k2pk6hgaaj1i3130mvmqtfs3su9rt2s.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCxR9tR9UAa3iEOdJUQcPS5eMZXP4wd0vU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "294355361521-9k2pk6hgaaj1i3130mvmqtfs3su9rt2s.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
