@@ -29,6 +29,13 @@
             {
               "client_id": "294355361521-9k2pk6hgaaj1i3130mvmqtfs3su9rt2s.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "294355361521-sf66vr8vcr5o755l3bsssrcei96avra1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.tramatecApp"
+              }
             }
           ]
         }

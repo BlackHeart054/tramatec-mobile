@@ -29,7 +29,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
           _loading = false;
         });
 
-        Navigator.pushReplacementNamed(context, '/login');
+        Navigator.pushReplacementNamed(context, '/home');
       }
     });
   }
@@ -61,7 +61,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 40),
-
                     CircleAvatar(
                       radius: constraints.maxWidth * 0.18,
                       backgroundColor: Colors.grey.shade800,
@@ -71,7 +70,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                               'assets/images/default_avatar.png'),
                     ),
                     const SizedBox(height: 20),
-
                     Text(
                       widget.userName,
                       style: TextStyle(
@@ -80,7 +78,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       ),
                     ),
                     const SizedBox(height: 40),
-
                     if (_loading) ...[
                       const CircularProgressIndicator(
                         valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
@@ -91,9 +88,7 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                         style: TextStyle(color: Colors.white70, fontSize: 14),
                       ),
                     ],
-
                     const Spacer(),
-
                     Image.asset(
                       'assets/images/tramatec_logo.png',
                       height: constraints.maxHeight * 0.08,

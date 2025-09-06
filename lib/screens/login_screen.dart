@@ -50,7 +50,8 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
+        Navigator.pushNamedAndRemoveUntil(
+            context, '/welcome', (route) => false);
       }
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Ocorreu um erro ao fazer login.";
@@ -124,14 +125,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     textAlign: TextAlign.center,
                     style: titleStyle2,
                   ),
-
                   SizedBox(height: (size.height * 0.05).clamp(16.0, 48.0)),
-
                   if (_errorMessage != null) ...[
                     ErrorMessage(message: _errorMessage!),
                     SizedBox(height: (size.height * 0.02).clamp(8.0, 20.0)),
                   ],
-
                   CustomTextField(
                     label: 'EMAIL',
                     controller: _emailController,
@@ -143,7 +141,6 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                     isPassword: true,
                   ),
-
                   SizedBox(height: (size.height * 0.015).clamp(8.0, 16.0)),
                   Align(
                     alignment: Alignment.centerRight,
@@ -157,7 +154,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                     ),
                   ),
-
                   SizedBox(height: (size.height * 0.03).clamp(16.0, 28.0)),
                   SizedBox(
                     height: (size.height * 0.07).clamp(44.0, 56.0),
@@ -173,17 +169,15 @@ class _LoginScreenState extends State<LoginScreen> {
                           ? const CircularProgressIndicator(color: Colors.white)
                           : const Text(
                               'ENTRAR',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
                   ),
-
                   SizedBox(height: (size.height * 0.03).clamp(16.0, 32.0)),
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -191,7 +185,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       TextButton(
                         onPressed: () {
                           Navigator.pushNamed(context, '/register');
-
                         },
                         style: TextButton.styleFrom(
                           padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -208,7 +201,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       )
                     ],
                   ),
-
                   SizedBox(height: (size.height * 0.05).clamp(20.0, 48.0)),
                   Center(
                     child: Image.asset(
