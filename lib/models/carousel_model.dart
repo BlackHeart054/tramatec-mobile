@@ -6,8 +6,6 @@ class Carousel {
   final String title;
   final int order;
   final List<String> bookIds;
-
-  /// Livros populados a partir dos IDs
   final List<Book> books;
 
   Carousel({
