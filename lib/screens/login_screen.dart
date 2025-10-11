@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:tramatec_app/custom_widgets/custom_textfield.dart';
 import 'package:tramatec_app/custom_widgets/error_message.dart';
 
+import '../config/utils.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -50,8 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
       );
 
       if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(
-            context, '/welcome', (route) => false);
+        Navigator.pushNamedAndRemoveUntil(context, '/home', (route) => false);
       }
     } on FirebaseAuthException catch (e) {
       String errorMessage = "Ocorreu um erro ao fazer login.";
@@ -71,6 +72,83 @@ class _LoginScreenState extends State<LoginScreen> {
           _isLoading = false;
         });
       }
+    }
+  }
+
+  Future<void> _showPasswordResetDialog() async {
+    final String email = _emailController.text.trim();
+
+    if (email.isEmpty || !isValidEmail(email)) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          backgroundColor: Colors.orange,
+          content:
+              Text('Por favor, insira um email válido para a recuperação.'),
+        ),
+      );
+      return;
+    }
+
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Confirmar Recuperação'),
+          content: RichText(
+            text: TextSpan(
+              style: Theme.of(context).dialogTheme.contentTextStyle,
+              children: [
+                const TextSpan(
+                    text: 'Deseja enviar um link de recuperação para o email '),
+                TextSpan(
+                  text: email,
+                  style: const TextStyle(
+                      fontWeight: FontWeight.bold, color: Colors.white),
+                ),
+                const TextSpan(text: '?'),
+              ],
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Cancelar'),
+            ),
+            FilledButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              child: const Text('Enviar'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      _sendPasswordResetEmail(email);
+    }
+  }
+
+  Future<void> _sendPasswordResetEmail(String email) async {
+    try {
+      await FirebaseAuth.instance.sendPasswordResetEmail(email: email);
+
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.green,
+          content: Text('Link de recuperação enviado para $email!'),
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: Colors.red,
+          content: Text(e.code == 'user-not-found'
+              ? 'Nenhuma conta encontrada com este email.'
+              : 'Ocorreu um erro. Tente novamente.'),
+        ),
+      );
     }
   }
 
@@ -110,119 +188,144 @@ class _LoginScreenState extends State<LoginScreen> {
         child: LayoutBuilder(
           builder: (context, constraints) {
             final Widget content = ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 520),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Text(
-                    'BOAS VINDAS A',
-                    textAlign: TextAlign.center,
-                    style: titleStyle1,
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'TRAMATEC!',
-                    textAlign: TextAlign.center,
-                    style: titleStyle2,
-                  ),
-                  SizedBox(height: (size.height * 0.05).clamp(16.0, 48.0)),
-                  if (_errorMessage != null) ...[
-                    ErrorMessage(message: _errorMessage!),
-                    SizedBox(height: (size.height * 0.02).clamp(8.0, 20.0)),
-                  ],
-                  CustomTextField(
-                    label: 'EMAIL',
-                    controller: _emailController,
-                    hasError: _hasError,
-                  ),
-                  SizedBox(height: (size.height * 0.025).clamp(12.0, 24.0)),
-                  CustomTextField(
-                    label: 'SENHA',
-                    controller: _passwordController,
-                    isPassword: true,
-                  ),
-                  SizedBox(height: (size.height * 0.015).clamp(8.0, 16.0)),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: TextButton(
-                      onPressed: () {
-                        // TODO: recuperação de senha
-                      },
-                      child: Text(
-                        'ESQUECI A SENHA',
-                        style: linkBaseStyle,
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: (size.height * 0.03).clamp(16.0, 28.0)),
-                  SizedBox(
-                    height: (size.height * 0.07).clamp(44.0, 56.0),
-                    child: ElevatedButton(
-                      onPressed: _isLoading ? null : _validateAndLogin,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFE53935),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(8),
+              constraints: BoxConstraints(
+                minHeight: constraints.maxHeight - (vPadding * 2),
+                maxWidth: 520,
+              ),
+              child: IntrinsicHeight(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          'BOAS VINDAS AO',
+                          textAlign: TextAlign.center,
+                          style: titleStyle1,
                         ),
-                      ),
-                      child: _isLoading
-                          ? const CircularProgressIndicator(color: Colors.white)
-                          : const Text(
-                              'ENTRAR',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
+                        const SizedBox(height: 8),
+                        Text(
+                          'TRAMATEC!',
+                          textAlign: TextAlign.center,
+                          style: titleStyle2,
+                        ),
+                      ],
+                    ),
+                    const Spacer(),
+
+                    // SizedBox(height: (size.height * 0.05).clamp(16.0, 48.0)),
+
+                    Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        if (_errorMessage != null) ...[
+                          ErrorMessage(message: _errorMessage!),
+                          SizedBox(
+                              height: (size.height * 0.02).clamp(8.0, 20.0)),
+                        ],
+                        CustomTextField(
+                          label: 'EMAIL',
+                          controller: _emailController,
+                          hasError: _hasError,
+                        ),
+                        SizedBox(
+                            height: (size.height * 0.025).clamp(12.0, 24.0)),
+                        CustomTextField(
+                          label: 'SENHA',
+                          controller: _passwordController,
+                          isPassword: true,
+                        ),
+                        SizedBox(
+                            height: (size.height * 0.015).clamp(8.0, 16.0)),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: TextButton(
+                            onPressed: _showPasswordResetDialog,
+                            child: Text(
+                              'ESQUECI A SENHA',
+                              style: linkBaseStyle,
                             ),
-                    ),
-                  ),
-                  SizedBox(height: (size.height * 0.03).clamp(16.0, 32.0)),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text('NÃO POSSUI UMA CONTA? ', style: linkBaseStyle),
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pushNamed(context, '/register');
-                        },
-                        style: TextButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 4),
-                          minimumSize: Size.zero,
-                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                        ),
-                        child: Text(
-                          'CRIE AQUI',
-                          style: linkBaseStyle.copyWith(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                      )
-                    ],
-                  ),
-                  SizedBox(height: (size.height * 0.05).clamp(20.0, 48.0)),
-                  Center(
-                    child: Image.asset(
-                      'assets/images/tramatec_logo.png',
-                      height: (size.height * 0.08).clamp(40.0, 80.0),
-                      fit: BoxFit.contain,
+                        SizedBox(
+                            height: (size.height * 0.03).clamp(16.0, 28.0)),
+                        SizedBox(
+                          height: (size.height * 0.07).clamp(44.0, 56.0),
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _isLoading ? null : _validateAndLogin,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: const Color(0xFFE53935),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                            ),
+                            child: _isLoading
+                                ? const CircularProgressIndicator(
+                                    color: Colors.white)
+                                : const Text(
+                                    'ENTRAR',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                          ),
+                        ),
+                        SizedBox(
+                            height: (size.height * 0.03).clamp(16.0, 32.0)),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text('NÃO POSSUI UMA CONTA? ',
+                                style: linkBaseStyle),
+                            TextButton(
+                              onPressed: () {
+                                Navigator.pushNamed(context, '/register');
+                              },
+                              style: TextButton.styleFrom(
+                                padding:
+                                    const EdgeInsets.symmetric(horizontal: 4),
+                                minimumSize: Size.zero,
+                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              ),
+                              child: Text(
+                                'CRIE AQUI',
+                                style: linkBaseStyle.copyWith(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            )
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                ],
+                    const Spacer(),
+                    Center(
+                      child: Image.asset(
+                        'assets/images/tramatec_logo.png',
+                        height: (size.height * 0.08).clamp(40.0, 80.0),
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ],
+                ),
               ),
             );
 
-            return Center(
-              child: SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: hPadding,
-                  vertical: vPadding,
-                ),
-                keyboardDismissBehavior:
-                    ScrollViewKeyboardDismissBehavior.onDrag,
-                child: content,
+            return SingleChildScrollView(
+              padding: EdgeInsets.symmetric(
+                horizontal: hPadding,
+                vertical: vPadding,
               ),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              child: content,
             );
           },
         ),

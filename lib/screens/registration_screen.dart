@@ -132,7 +132,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
+                      flex: 5,
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Row(
                             children: [
@@ -152,13 +154,11 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             ],
                           ),
                           SizedBox(height: size.height * 0.015),
-
                           CustomTextField(
                             label: 'EMAIL',
                             controller: _emailController,
                           ),
                           SizedBox(height: size.height * 0.015),
-
                           Row(
                             children: [
                               Expanded(
@@ -179,14 +179,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             ],
                           ),
                           SizedBox(height: size.height * 0.015),
-
                           CustomTextField(
                             label: 'SENHA',
                             controller: _senhaController,
                             isPassword: true,
                           ),
                           SizedBox(height: size.height * 0.015),
-
                           CustomTextField(
                             label: 'CONFIRMAR SENHA',
                             controller: _confirmarSenhaController,
@@ -195,61 +193,65 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                         ],
                       ),
                     ),
-
-                    Column(
-                      children: [
-                        SizedBox(
-                          height: (size.height * 0.065).clamp(44.0, 54.0),
-                          width: double.infinity,
-                          child: ElevatedButton(
-                           onPressed: isLoading ? null : registerUser,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFF3F8A99),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            child: isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white)
-                                : const Text(
-                                    'CADASTRAR',
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
-                        ),
-                        SizedBox(height: size.height * 0.015),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('JÁ POSSUI UMA CONTA? ', style: linkBaseStyle),
-                            TextButton(
-                              onPressed: () {
-                               Navigator.pushReplacementNamed(
-                                    context, '/login');
-                              },
-                              style: TextButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              ),
-                              child: Text(
-                                'ENTRE AQUI',
-                                style: linkBaseStyle.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
+                    Expanded(
+                      flex: 1,
+                      child: Column(
+                        children: [
+                          SizedBox(
+                            height: (size.height * 0.065).clamp(44.0, 54.0),
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: isLoading ? null : registerUser,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF3F8A99),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
+                              child: isLoading
+                                  ? const CircularProgressIndicator(
+                                      color: Colors.white)
+                                  : const Text(
+                                      'CADASTRAR',
+                                      style: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                             ),
-                          ],
-                        ),
-                      ],
+                          ),
+                          SizedBox(height: size.height * 0.015),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('JÁ POSSUI UMA CONTA? ',
+                                  style: linkBaseStyle),
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.pushReplacementNamed(
+                                      context, '/login');
+                                },
+                                style: TextButton.styleFrom(
+                                  padding:
+                                      const EdgeInsets.symmetric(horizontal: 4),
+                                  minimumSize: Size.zero,
+                                  tapTargetSize:
+                                      MaterialTapTargetSize.shrinkWrap,
+                                ),
+                                child: Text(
+                                  'ENTRE AQUI',
+                                  style: linkBaseStyle.copyWith(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                    decoration: TextDecoration.underline,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
