@@ -11,6 +11,8 @@ class RegistrationScreen extends StatefulWidget {
 }
 
 class _RegistrationScreenState extends State<RegistrationScreen> {
+  bool _isLoading = false;
+
   final TextEditingController _nomeController = TextEditingController();
   final TextEditingController _sobrenomeController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
@@ -32,6 +34,54 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
     super.dispose();
   }
 
+  Future<void> _registerUser() async {
+    if (_senhaController.text != _confirmarSenhaController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("As senhas não coincidem.")),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: _emailController.text.trim(),
+        password: _senhaController.text,
+      );
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Cadastro realizado com sucesso!")),
+        );
+        Navigator.pushReplacementNamed(context, '/login');
+      }
+    } on FirebaseAuthException catch (e) {
+      if (kDebugMode) {
+        print("Erro no cadastro: ${e.message}");
+      }
+      String errorMessage = "Ocorreu um erro ao cadastrar.";
+      if (e.code == 'weak-password') {
+        errorMessage = 'A senha fornecida é muito fraca.';
+      } else if (e.code == 'email-already-in-use') {
+        errorMessage = 'Já existe uma conta com este email.';
+      }
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(errorMessage)),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
   double _scaleForWidth(double screenWidth) {
     return (screenWidth / 375.0).clamp(0.85, 1.15);
   }
@@ -40,7 +90,6 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final double scale = _scaleForWidth(size.width);
-    bool isLoading = false;
 
     final TextStyle titleStyle = TextStyle(
       color: Colors.white,
@@ -54,70 +103,17 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       fontSize: (12.0 * scale).clamp(11.0, 14.0),
     );
 
-    Future<void> registerUser() async {
-      if (_senhaController.text != _confirmarSenhaController.text) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("As senhas não coincidem.")),
-        );
-        return;
-      }
-
-      setState(() {
-        isLoading = true;
-      });
-
-      try {
-        await FirebaseAuth.instance.createUserWithEmailAndPassword(
-          email: _emailController.text.trim(),
-          password: _senhaController.text,
-        );
-
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("Cadastro realizado com sucesso!")),
-          );
-          Navigator.pushReplacementNamed(context, '/login');
-        }
-      } on FirebaseAuthException catch (e) {
-        if (kDebugMode) {
-          print("Erro no cadastro: ${e.message}");
-        }
-        String errorMessage = "Ocorreu um erro ao cadastrar.";
-        if (e.code == 'weak-password') {
-          errorMessage = 'A senha fornecida é muito fraca.';
-        } else if (e.code == 'email-already-in-use') {
-          errorMessage = 'Já existe uma conta com este email.';
-        }
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(errorMessage)),
-          );
-        }
-      } finally {
-        if (mounted) {
-          setState(() {
-            isLoading = false;
-          });
-        }
-      }
-    }
-
     return Scaffold(
       backgroundColor: const Color(0xFF0C101C),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
-        ),
-        title: Text(
-          'VAMOS DAR INÍCIO A\nNOSSA AVENTURA?',
-          textAlign: TextAlign.center,
-          style: titleStyle,
-        ),
-        centerTitle: true,
-      ),
+      // appBar: AppBar(
+      //   backgroundColor: Colors.transparent,
+      //   elevation: 0,
+      //   leading: IconButton(
+      //     icon: const Icon(Icons.arrow_back, color: Colors.white),
+      //     onPressed: () => Navigator.of(context).pop(),
+      //   ),
+      //   centerTitle: true,
+      // ),
       body: LayoutBuilder(
         builder: (context, constraints) {
           return Center(
@@ -132,10 +128,16 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Expanded(
-                      flex: 5,
+                      flex: 6,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
+                          Text(
+                            'VAMOS DAR INÍCIO A\nNOSSA AVENTURA?',
+                            textAlign: TextAlign.center,
+                            style: titleStyle,
+                          ),
+                          const SizedBox(height: 20),
                           Row(
                             children: [
                               Expanded(
@@ -201,20 +203,20 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                             height: (size.height * 0.065).clamp(44.0, 54.0),
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: isLoading ? null : registerUser,
+                              onPressed: _isLoading ? null : _registerUser,
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: const Color(0xFF3F8A99),
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(12),
                                 ),
                               ),
-                              child: isLoading
+                              child: _isLoading
                                   ? const CircularProgressIndicator(
                                       color: Colors.white)
                                   : const Text(
                                       'CADASTRAR',
                                       style: TextStyle(
-                                        fontSize: 16,
+                                        fontSize: 15,
                                         fontWeight: FontWeight.bold,
                                         color: Colors.white,
                                       ),
@@ -248,6 +250,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   ),
                                 ),
                               ),
+                              const SizedBox(height: 20),
                             ],
                           ),
                         ],

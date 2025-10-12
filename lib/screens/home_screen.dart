@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart';
-import 'package:tramatec_app/custom_widgets/book_carousel.dart';
-import 'package:tramatec_app/main.dart';
+import 'package:tramatec_app/screens/settings_screen.dart';
 import 'package:tramatec_app/stores/book_store.dart';
-import 'package:tramatec_app/models/carousel_model.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:package_info_plus/package_info_plus.dart';
 
 import '../config/service_locator.dart';
+import 'initial_page_home.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,75 +15,54 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   late final BookStore bookStore;
-  int selectedIndex = 0;
-  String _appVersion = '';
+  int _selectedIndex = 0;
   User? _currentUser;
 
   @override
   void initState() {
     super.initState();
     bookStore = getIt<BookStore>();
-    _loadAppInfo();
-  }
-
-  Future<void> _loadAppInfo() async {
-    final packageInfo = await PackageInfo.fromPlatform();
-    final user = FirebaseAuth.instance.currentUser;
-    if (mounted) {
-      setState(() {
-        _appVersion = 'v${packageInfo.version}';
-        _currentUser = user;
-      });
+    if (bookStore.carousels.isEmpty) {
+      bookStore.fetchHomeScreenData();
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
+  AppBar _buildInitialAppBar() {
+    return AppBar(
       backgroundColor: const Color(0xFF0C101C),
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF0C101C),
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.person_search_outlined, color: Colors.white),
+      elevation: 0,
+      title: _buildSearchBar(),
+      actions: [
+        IconButton(
+          icon: const Icon(Icons.filter_list, color: Colors.white),
           onPressed: () {},
         ),
-        title: _buildSearchBar(),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: Colors.white),
-            onPressed: () {
-              // TODO: abrir filtros
-            },
-          ),
-        ],
-      ),
-      drawer: _buildAppDrawer(),
-      body: Observer(
-        builder: (_) {
-          if (bookStore.isLoading) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.white),
-            );
-          }
+      ],
+    );
+  }
 
-          if (bookStore.carousels.isEmpty) {
-            return const Center(
-              child: Text("Nenhum conteúdo disponível",
-                  style: TextStyle(color: Colors.white)),
-            );
-          }
-
-          return ListView.builder(
-            itemCount: bookStore.carousels.length,
-            itemBuilder: (context, index) {
-              final Carousel carousel = bookStore.carousels[index];
-              return BookCarousel(title: carousel.title, books: carousel.books);
-            },
-          );
-        },
+  Widget _buildSearchBar() {
+    return GestureDetector(
+      onTap: () {
+        // TODO: criar busca
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          color: const Color(0xFF222B45),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          children: const [
+            Icon(Icons.search, color: Colors.grey, size: 20),
+            SizedBox(width: 8),
+            Text(
+              'Pesquisar livros...',
+              style: TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+          ],
+        ),
       ),
-      bottomNavigationBar: _buildBottomNav(),
     );
   }
 
@@ -129,34 +105,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 style: const TextStyle(color: Colors.white70),
               ),
             ),
-          AboutListTile(
-            icon: const Icon(Icons.info_outline, color: Colors.white70),
-            applicationIcon: Image.asset(
-              'assets/images/white_logo.png',
-              height: 80,
-            ),
-            applicationName: 'Tramatec',
-            applicationVersion: _appVersion,
-            applicationLegalese: '© 2025 Tramatec',
-            aboutBoxChildren: const [
-              SizedBox(height: 16),
-              Text('Objetivo do Aplicativo:',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Text('Este aplicativo tem como objetivo fornecer uma plataforma '
-                  'rica e imersiva para a criação, descoberta e leitura de novos livros, '
-                  'contos e crônicas.'),
-              SizedBox(height: 24),
-              Text('Equipe de Desenvolvimento:',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 8),
-              Text('• Lucas Menezes\n'),
-            ],
-            child: const Text(
-              'Sobre o App',
-              style: TextStyle(color: Colors.white70),
-            ),
-          ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.white70),
             title: const Text(
@@ -177,36 +125,30 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildSearchBar() {
-    return GestureDetector(
-      onTap: () {
-        // TODO: criar busca
-      },
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-        decoration: BoxDecoration(
-          color: const Color(0xFF222B45),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: const [
-            Icon(Icons.search, color: Colors.grey, size: 20),
-            SizedBox(width: 8),
-            Text(
-              'Pesquisar livros...',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
-            ),
-          ],
-        ),
-      ),
+  final List<Widget> _screens = [
+    const InitialPageContent(),
+    const Center(
+        child: Text('Explorar', style: TextStyle(color: Colors.white))),
+    const Center(child: Text('Criar', style: TextStyle(color: Colors.white))),
+    const SettingsScreen(),
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF0C101C),
+      body: _screens[_selectedIndex],
+      appBar: _selectedIndex == 0 ? _buildInitialAppBar() : null,
+      bottomNavigationBar: _buildBottomNav(),
+      drawer: _buildAppDrawer(),
     );
   }
 
   Widget _buildBottomNav() {
     return BottomNavigationBar(
-      currentIndex: selectedIndex,
+      currentIndex: _selectedIndex,
       onTap: (index) {
-        setState(() => selectedIndex = index);
+        setState(() => _selectedIndex = index);
       },
       type: BottomNavigationBarType.fixed,
       backgroundColor: const Color(0xFF0C101C),
@@ -218,7 +160,7 @@ class _HomeScreenState extends State<HomeScreen> {
         BottomNavigationBarItem(
             icon: Icon(Icons.grid_view_outlined), label: 'Explorar'),
         BottomNavigationBarItem(
-            icon: Icon(Icons.person_outline), label: 'Perfil'),
+            icon: Icon(Icons.new_label_outlined), label: 'Criar'),
         BottomNavigationBarItem(
             icon: Icon(Icons.settings_outlined), label: 'Ajustes'),
       ],

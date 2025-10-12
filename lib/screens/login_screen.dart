@@ -299,6 +299,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                 style: linkBaseStyle.copyWith(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
+                                  decoration: TextDecoration.underline,
                                 ),
                               ),
                             )
