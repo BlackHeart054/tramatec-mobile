@@ -4,6 +4,7 @@ import 'package:tramatec_app/stores/book_store.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
 import '../config/service_locator.dart';
+import 'explore_screen.dart';
 import 'initial_page_home.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -127,8 +128,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _screens = [
     const InitialPageContent(),
-    const Center(
-        child: Text('Explorar', style: TextStyle(color: Colors.white))),
+    const ExploreScreen(),
     const Center(child: Text('Criar', style: TextStyle(color: Colors.white))),
     const SettingsScreen(),
   ];
