@@ -78,8 +78,11 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: const BoxDecoration(
               color: Color(0xFF0C101C),
             ),
-            child: Image.asset(
-              'assets/images/tramatec_logo.png',
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Image.asset(
+                'assets/images/tramatec_logo.png',
+              ),
             ),
           ),
           if (_currentUser != null)
@@ -105,7 +108,57 @@ class _HomeScreenState extends State<HomeScreen> {
                 _currentUser!.email!,
                 style: const TextStyle(color: Colors.white70),
               ),
+              onTap: () {
+                setState(() => _selectedIndex = 2);
+                Navigator.pop(context);
+              },
             ),
+          ListTile(
+            leading:
+                const Icon(Icons.play_circle_outline, color: Colors.white70),
+            title: const Text(
+              'Continuar Lendo',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              // TODO: lógica para abrir o último livro que estava lendo
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.edit_document, color: Colors.white70),
+            title: const Text(
+              'Continuar Escrevendo',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              // TODO: lógica para abrir último livro que estava escrevendo
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.collections_bookmark_outlined,
+                color: Colors.white70),
+            title: const Text(
+              'Minha Biblioteca',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              // TODO: ir para tela da biblioteca
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.star_outline, color: Colors.white70),
+            title: const Text(
+              'Favoritos',
+              style: TextStyle(color: Colors.white),
+            ),
+            onTap: () {
+              // TODO: ir para tela de favoritos
+              Navigator.pop(context);
+            },
+          ),
           ListTile(
             leading: const Icon(Icons.logout, color: Colors.white70),
             title: const Text(
@@ -114,9 +167,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             onTap: () async {
               await FirebaseAuth.instance.signOut();
-
               if (!mounted) return;
-
               Navigator.pop(context);
               Navigator.pushReplacementNamed(context, '/login');
             },
