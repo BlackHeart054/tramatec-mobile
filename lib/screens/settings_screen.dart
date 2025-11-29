@@ -68,7 +68,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             secondary:
                 const Icon(Icons.notifications_outlined, color: Colors.white70),
-            activeColor: Colors.teal,
+            activeThumbColor: Colors.teal,
           ),
           SwitchListTile(
             title: const Text('Baixar somente via Wi-Fi',
@@ -80,7 +80,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               });
             },
             secondary: const Icon(Icons.wifi, color: Colors.white70),
-            activeColor: Colors.teal,
+            activeThumbColor: Colors.teal,
           ),
           SwitchListTile(
             title: const Text('Modo restrito',
@@ -93,7 +93,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             },
             secondary:
                 const Icon(Icons.lock_person_outlined, color: Colors.white70),
-            activeColor: Colors.teal,
+            activeThumbColor: Colors.teal,
           ),
           ListTile(
             leading: const Icon(Icons.delete_outline, color: Colors.white70),

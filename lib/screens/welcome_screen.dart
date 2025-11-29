@@ -28,7 +28,6 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
         setState(() {
           _loading = false;
         });
-
         Navigator.pushReplacementNamed(context, '/home');
       }
     });
@@ -65,7 +64,9 @@ class _WelcomeScreenState extends State<WelcomeScreen> {
                       radius: constraints.maxWidth * 0.18,
                       backgroundColor: Colors.grey.shade800,
                       backgroundImage: widget.avatarUrl != null
-                          ? AssetImage(widget.avatarUrl!)
+                          ? (widget.avatarUrl!.startsWith('http')
+                              ? NetworkImage(widget.avatarUrl!) as ImageProvider
+                              : AssetImage(widget.avatarUrl!))
                           : const AssetImage(
                               'assets/images/default_avatar.png'),
                     ),

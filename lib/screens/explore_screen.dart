@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:tramatec_app/config/service_locator.dart';
+import 'package:tramatec_app/custom_widgets/epub_reader.dart';
 import 'package:tramatec_app/models/book_model.dart';
 import 'package:tramatec_app/custom_widgets/book_card.dart';
+import 'package:tramatec_app/stores/book_store.dart';
 
 final List<Book> exploreBooks = [
   Book(
@@ -95,8 +99,23 @@ final List<Book> exploreBooks = [
   ),
 ];
 
-class ExploreScreen extends StatelessWidget {
+class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
+
+  @override
+  State<ExploreScreen> createState() => _ExploreScreenState();
+}
+
+class _ExploreScreenState extends State<ExploreScreen> {
+  final BookStore bookStore = getIt<BookStore>();
+
+  @override
+  void initState() {
+    super.initState();
+    if (bookStore.publicDomainBooks.isEmpty) {
+      bookStore.fetchGutendexBooks();
+    }
+  }
 
   void _showBookPreview(BuildContext context, Book book) {
     showModalBottomSheet(
@@ -111,27 +130,107 @@ class ExploreScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF0C101C),
-      body: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          _buildGenreChips(),
-          const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
-            child: Text(
-              'Populares na Tramatec',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+          child: Text(
+            'Domínio Público',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
             ),
           ),
-          Expanded(
-            child: GridView.builder(
+        ),
+        Expanded(
+          child: Observer(
+            builder: (_) {
+              var apiBooks = bookStore.publicDomainBooks.toList();
+
+              if (bookStore.isLoading && apiBooks.isEmpty) {
+                return const Center(
+                    child: CircularProgressIndicator(color: Colors.white));
+              }
+
+              apiBooks =
+                  bookStore.applySort(apiBooks, bookStore.currentExploreSort);
+
+              if (apiBooks.isEmpty) {
+                return const Center(
+                    child: Text("Falha ao carregar livros",
+                        style: TextStyle(color: Colors.white54)));
+              }
+
+              return GridView.builder(
+                padding: const EdgeInsets.symmetric(horizontal: 12.0),
+                itemCount: apiBooks.length,
+                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                  maxCrossAxisExtent: 200,
+                  childAspectRatio: 0.55,
+                  crossAxisSpacing: 10,
+                  mainAxisSpacing: 10,
+                ),
+                itemBuilder: (context, index) {
+                  final book = apiBooks[index];
+                  return BookCard(
+                    book: book,
+                    onTap: () => _showBookPreview(context, book),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+void _showBookPreview(BuildContext context, Book book) {
+  showModalBottomSheet(
+    context: context,
+    isScrollControlled: true,
+    backgroundColor: Colors.transparent,
+    builder: (context) {
+      return BookPreviewSheet(book: book);
+    },
+  );
+}
+
+@override
+Widget build(BuildContext context) {
+  final BookStore bookStore = getIt<BookStore>();
+
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Padding(
+        padding: EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        child: Text(
+          'Todos os Livros',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 22,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      Expanded(
+        child: Observer(
+          builder: (_) {
+            final allBooks =
+                bookStore.carousels.expand((c) => c.books).toSet().toList();
+
+            if (allBooks.isEmpty && bookStore.isLoading) {
+              return const Center(
+                  child: CircularProgressIndicator(color: Colors.white));
+            }
+
+            return GridView.builder(
               padding: const EdgeInsets.symmetric(horizontal: 12.0),
-              itemCount: exploreBooks.length,
+              itemCount: allBooks.length,
               gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
                 maxCrossAxisExtent: 200,
                 childAspectRatio: 0.55,
@@ -139,52 +238,18 @@ class ExploreScreen extends StatelessWidget {
                 mainAxisSpacing: 10,
               ),
               itemBuilder: (context, index) {
-                final book = exploreBooks[index];
+                final book = allBooks[index];
                 return BookCard(
                   book: book,
                   onTap: () => _showBookPreview(context, book),
                 );
               },
-            ),
-          ),
-        ],
+            );
+          },
+        ),
       ),
-    );
-  }
-
-  Widget _buildGenreChips() {
-    final genres = [
-      'Ficção Científica',
-      'Romance',
-      'Suspense',
-      'Fantasia',
-      'Aventura'
-    ];
-
-    return SizedBox(
-      height: 60,
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-        itemCount: genres.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: ChoiceChip(
-              label: Text(genres[index]),
-              selected: index == 0,
-              onSelected: (selected) {},
-              backgroundColor: const Color(0xFF222B45),
-              selectedColor: const Color(0xFF3F8A99),
-              labelStyle: const TextStyle(color: Colors.white),
-              shape:
-                  StadiumBorder(side: BorderSide(color: Colors.grey.shade700)),
-            ),
-          );
-        },
-      ),
-    );
-  }
+    ],
+  );
 }
 
 class BookPreviewSheet extends StatelessWidget {
@@ -193,6 +258,7 @@ class BookPreviewSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final BookStore bookStore = getIt<BookStore>();
     return Container(
       padding: const EdgeInsets.all(24.0),
       decoration: const BoxDecoration(
@@ -223,8 +289,31 @@ class BookPreviewSheet extends StatelessWidget {
               children: [
                 ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child:
-                      Image.asset(book.coverUrl, width: 100, fit: BoxFit.cover),
+                  child: book.coverUrl.startsWith('http')
+                      ? Image.network(
+                          book.coverUrl,
+                          width: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 100,
+                            height: 150,
+                            color: Colors.grey.shade800,
+                            child: const Icon(Icons.broken_image,
+                                color: Colors.white54),
+                          ),
+                        )
+                      : Image.asset(
+                          book.coverUrl,
+                          width: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => Container(
+                            width: 100,
+                            height: 150,
+                            color: Colors.grey.shade800,
+                            child:
+                                const Icon(Icons.book, color: Colors.white54),
+                          ),
+                        ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -265,23 +354,84 @@ class BookPreviewSheet extends StatelessWidget {
             const SizedBox(height: 32),
             Row(
               children: [
+                // 1. Botão LER AGORA
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF3F8A99),
                       padding: const EdgeInsets.symmetric(vertical: 14),
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8)),
                     ),
-                    child: const Text('LER AGORA',
-                        style: TextStyle(color: Colors.white)),
+                    onPressed: () async {
+                      final navigator = Navigator.of(context);
+                      final scaffoldMessenger = ScaffoldMessenger.of(context);
+                      navigator.pop();
+                      scaffoldMessenger.showSnackBar(const SnackBar(
+                          content: Text('Preparando seu livro...')));
+
+                      try {
+                        final String path = await bookStore.openBook(book);
+                        navigator.push(MaterialPageRoute(
+                            builder: (_) => EpubReaderPage(
+                                epubPath: path, bookId: book.id)));
+                      } catch (e) {
+                        scaffoldMessenger.showSnackBar(SnackBar(
+                            content: Text(e.toString()),
+                            backgroundColor: Colors.red));
+                      }
+                    },
+                    child: book.downloadUrl == null
+                        ? const Text('INDISPONÍVEL',
+                            style: TextStyle(color: Colors.white54))
+                        : const Text('LER AGORA',
+                            style: TextStyle(color: Colors.white)),
                   ),
                 ),
-                const SizedBox(width: 12),
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(Icons.bookmark_add_outlined,
-                      color: Colors.white, size: 28),
-                ),
+
+                const SizedBox(width: 8),
+
+                // 2. Botão FAVORITAR (Coração)
+                Observer(builder: (_) {
+                  final isFav = bookStore.favorites.any((b) => b.id == book.id);
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF222B45),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        isFav ? Icons.favorite : Icons.favorite_border,
+                        color: isFav ? Colors.redAccent : Colors.white,
+                      ),
+                      onPressed: () => bookStore.toggleFavorite(book),
+                      tooltip: "Favoritar",
+                    ),
+                  );
+                }),
+
+                const SizedBox(width: 8),
+
+                // 3. Botão MARCAR (Bookmark)
+                Observer(builder: (_) {
+                  final isMarked =
+                      bookStore.bookmarks.any((b) => b.id == book.id);
+                  return Container(
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF222B45),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: IconButton(
+                      icon: Icon(
+                        isMarked ? Icons.bookmark : Icons.bookmark_border,
+                        color:
+                            isMarked ? const Color(0xFF3F8A99) : Colors.white,
+                      ),
+                      onPressed: () => bookStore.toggleBookmark(book),
+                      tooltip: "Marcar para ler",
+                    ),
+                  );
+                }),
               ],
             ),
           ],

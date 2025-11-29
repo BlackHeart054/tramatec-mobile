@@ -1,11 +1,12 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:tramatec_app/custom_widgets/background_template.dart';
 import 'package:tramatec_app/custom_widgets/custom_textfield.dart';
 import 'package:tramatec_app/custom_widgets/error_message.dart';
-
 import '../config/utils.dart';
 
 class LoginScreen extends StatefulWidget {
+  static const String route = '/login';
   const LoginScreen({super.key});
 
   @override
@@ -13,7 +14,7 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  bool _hasError = false;
+  final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -28,27 +29,19 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _validateAndLogin() async {
-    final String email = _emailController.text.trim();
-    final String password = _passwordController.text;
-
-    if (email.isEmpty || password.isEmpty) {
-      setState(() {
-        _hasError = true;
-        _errorMessage = 'Por favor, preencha todos os campos.';
-      });
+    if (!_formKey.currentState!.validate()) {
       return;
     }
 
     setState(() {
       _isLoading = true;
-      _hasError = false;
       _errorMessage = null;
     });
 
     try {
       await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
+        email: _emailController.text.trim(),
+        password: _passwordController.text,
       );
 
       if (mounted) {
@@ -63,7 +56,6 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       setState(() {
-        _hasError = true;
         _errorMessage = errorMessage;
       });
     } finally {
@@ -161,9 +153,8 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
     final double scale = _scaleForWidth(size.width);
-
     final double hPadding = (size.width * 0.08).clamp(16.0, 40.0);
-    final double vPadding = (size.height * 0.05).clamp(16.0, 48.0);
+    final double vPadding = (size.height * 0.02).clamp(10.0, 30.0);
 
     final TextStyle titleStyle1 = TextStyle(
       color: Colors.white,
@@ -183,152 +174,166 @@ class _LoginScreenState extends State<LoginScreen> {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFF0C101C),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final Widget content = ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: constraints.maxHeight - (vPadding * 2),
-                maxWidth: 520,
-              ),
-              child: IntrinsicHeight(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          'BOAS VINDAS AO',
-                          textAlign: TextAlign.center,
-                          style: titleStyle1,
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'TRAMATEC!',
-                          textAlign: TextAlign.center,
-                          style: titleStyle2,
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-
-                    // SizedBox(height: (size.height * 0.05).clamp(16.0, 48.0)),
-
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (_errorMessage != null) ...[
-                          ErrorMessage(message: _errorMessage!),
+      body: BackgroundTemplate(
+        backgroundColor: const Color(0xFF0C101C),
+        showLogo: true,
+        showVersion: true,
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: EdgeInsets.symmetric(
+                  horizontal: hPadding,
+                  vertical: vPadding,
+                ),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - 80,
+                    maxWidth: 520,
+                  ),
+                  child: IntrinsicHeight(
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const Spacer(),
+                          Column(
+                            children: [
+                              Text(
+                                'BOAS VINDAS AO',
+                                textAlign: TextAlign.center,
+                                style: titleStyle1,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'TRAMATEC!',
+                                textAlign: TextAlign.center,
+                                style: titleStyle2,
+                              ),
+                            ],
+                          ),
                           SizedBox(
-                              height: (size.height * 0.02).clamp(8.0, 20.0)),
-                        ],
-                        CustomTextField(
-                          label: 'EMAIL',
-                          controller: _emailController,
-                          hasError: _hasError,
-                        ),
-                        SizedBox(
-                            height: (size.height * 0.025).clamp(12.0, 24.0)),
-                        CustomTextField(
-                          label: 'SENHA',
-                          controller: _passwordController,
-                          isPassword: true,
-                        ),
-                        SizedBox(
-                            height: (size.height * 0.015).clamp(8.0, 16.0)),
-                        Align(
-                          alignment: Alignment.centerRight,
-                          child: TextButton(
-                            onPressed: _showPasswordResetDialog,
-                            child: Text(
-                              'ESQUECI A SENHA',
-                              style: linkBaseStyle,
-                            ),
-                          ),
-                        ),
-                        SizedBox(
-                            height: (size.height * 0.03).clamp(16.0, 28.0)),
-                        SizedBox(
-                          height: (size.height * 0.07).clamp(44.0, 56.0),
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed: _isLoading ? null : _validateAndLogin,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: const Color(0xFFE53935),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                              height: (size.height * 0.05).clamp(20.0, 48.0)),
+                          Column(
+                            children: [
+                              if (_errorMessage != null) ...[
+                                ErrorMessage(message: _errorMessage!),
+                                SizedBox(
+                                    height:
+                                        (size.height * 0.02).clamp(8.0, 20.0)),
+                              ],
+                              CustomTextField(
+                                label: 'EMAIL',
+                                controller: _emailController,
+                                keyboardType: TextInputType.emailAddress,
+                                validator: (val) {
+                                  if (val == null || val.isEmpty) {
+                                    return 'Digite seu email';
+                                  }
+                                  if (!isValidEmail(val)) {
+                                    return 'Email inválido';
+                                  }
+                                  return null;
+                                },
                               ),
-                            ),
-                            child: _isLoading
-                                ? const CircularProgressIndicator(
-                                    color: Colors.white)
-                                : const Text(
-                                    'ENTRAR',
-                                    style: TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        SizedBox(
-                            height: (size.height * 0.03).clamp(16.0, 32.0)),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text('NÃO POSSUI UMA CONTA? ',
-                                style: linkBaseStyle),
-                            TextButton(
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/register');
-                              },
-                              style: TextButton.styleFrom(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 4),
-                                minimumSize: Size.zero,
-                                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                              SizedBox(
+                                  height:
+                                      (size.height * 0.025).clamp(12.0, 24.0)),
+                              CustomTextField(
+                                label: 'SENHA',
+                                controller: _passwordController,
+                                isPassword: true,
+                                validator: (val) {
+                                  if (val == null || val.isEmpty) {
+                                    return 'Digite sua senha';
+                                  }
+                                  return null;
+                                },
                               ),
-                              child: Text(
-                                'CRIE AQUI',
-                                style: linkBaseStyle.copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                  decoration: TextDecoration.underline,
+                              SizedBox(
+                                  height:
+                                      (size.height * 0.015).clamp(8.0, 16.0)),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: TextButton(
+                                  onPressed: _showPasswordResetDialog,
+                                  child: Text('ESQUECI A SENHA',
+                                      style: linkBaseStyle),
                                 ),
                               ),
-                            )
-                          ],
-                        ),
-                      ],
-                    ),
-                    const Spacer(),
-                    Center(
-                      child: Image.asset(
-                        'assets/images/tramatec_logo.png',
-                        height: (size.height * 0.08).clamp(40.0, 80.0),
-                        fit: BoxFit.contain,
+                              SizedBox(
+                                  height:
+                                      (size.height * 0.03).clamp(16.0, 28.0)),
+                              SizedBox(
+                                height: (size.height * 0.07).clamp(44.0, 56.0),
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed:
+                                      _isLoading ? null : _validateAndLogin,
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFFE53935),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  child: _isLoading
+                                      ? const CircularProgressIndicator(
+                                          color: Colors.white)
+                                      : const Text(
+                                          'ENTRAR',
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                ),
+                              ),
+                              SizedBox(
+                                  height:
+                                      (size.height * 0.03).clamp(16.0, 32.0)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text('NÃO POSSUI UMA CONTA? ',
+                                      style: linkBaseStyle),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.pushNamed(context, '/register');
+                                    },
+                                    style: TextButton.styleFrom(
+                                      padding: const EdgeInsets.symmetric(
+                                          horizontal: 4),
+                                      minimumSize: Size.zero,
+                                      tapTargetSize:
+                                          MaterialTapTargetSize.shrinkWrap,
+                                    ),
+                                    child: Text(
+                                      'CRIE AQUI',
+                                      style: linkBaseStyle.copyWith(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        decoration: TextDecoration.underline,
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
-              ),
-            );
-
-            return SingleChildScrollView(
-              padding: EdgeInsets.symmetric(
-                horizontal: hPadding,
-                vertical: vPadding,
-              ),
-              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-              child: content,
-            );
-          },
+              );
+            },
+          ),
         ),
       ),
     );

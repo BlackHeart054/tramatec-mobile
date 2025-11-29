@@ -1,13 +1,16 @@
-Clone o projeto: git clone https://github.com/BlackHeart054/tramatec-mobile.git e entre na pasta.
+# tramatec
 
-Instale a versão certa do Flutter: fvm install 3.7.0
+A new Flutter project.
 
-Configure seu próprio Firebase: flutterfire configure.
+## Getting Started
 
-Baixe as dependências: fvm flutter pub get
+This project is a starting point for a Flutter application.
 
-Gere os arquivos do MobX: fvm flutter pub run build_runner build --delete-conflicting-outputs
+A few resources to get you started if this is your first Flutter project:
 
-Execute: fvm flutter run
+- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
+- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
 
-Caso tenha dúvidas com fvm, acesse: https://medium.com/brasilflutter/%C3%A9-do-brasil-fvm-uma-forma-simples-de-gerenciar-as-vers%C3%B5es-do-flutter-6e0999ce8ad9
+For help getting started with Flutter development, view the
+[online documentation](https://docs.flutter.dev/), which offers tutorials,
+samples, guidance on mobile development, and a full API reference.

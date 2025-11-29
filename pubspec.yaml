@@ -37,12 +37,18 @@ dependencies:
   mobx: ^2.3.2
   flutter_mobx: ^2.2.0+2
   provider: ^6.1.5
-  firebase_core: ^2.24.2
-  firebase_auth: ^4.16.0
-  cloud_firestore: ^4.14.0
-  get_it: ^7.6.0
-  package_info_plus: ^4.2.0
-  google_fonts: ^4.0.3
+  firebase_core: ^4.2.1
+  firebase_auth: ^6.1.2
+  cloud_firestore: ^6.1.0
+  get_it: ^9.1.1
+  package_info_plus: ^9.0.0
+  google_fonts: ^6.3.2
+  flutter_svg: ^2.2.3
+  http: ^1.6.0
+  epub_view: ^3.2.0
+  dio: ^5.9.0
+  path_provider: ^2.1.5
+  permission_handler: ^12.0.1
 
 dev_dependencies:
   flutter_test:
@@ -53,7 +59,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^6.0.0
   build_runner: ^2.3.3
   mobx_codegen: ^2.3.0
 

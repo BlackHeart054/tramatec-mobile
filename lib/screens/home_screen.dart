@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:tramatec_app/custom_widgets/book_search_delegate.dart';
+import 'package:tramatec_app/custom_widgets/custom_drawer.dart';
 import 'package:tramatec_app/screens/settings_screen.dart';
 import 'package:tramatec_app/stores/book_store.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 
 import '../config/service_locator.dart';
 import 'explore_screen.dart';
@@ -17,7 +19,6 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   late final BookStore bookStore;
   int _selectedIndex = 0;
-  User? _currentUser;
 
   @override
   void initState() {
@@ -28,16 +29,91 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _showSortOptions() {
+    showModalBottomSheet(
+      context: context,
+      backgroundColor: const Color(0xFF191D3A),
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) {
+        return SafeArea(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Padding(
+                padding: EdgeInsets.all(16.0),
+                child: Text(
+                  "Ordenar Livros (Aba Explorar)",
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold),
+                ),
+              ),
+              const Divider(color: Colors.white24),
+              _buildSortOptionTile(
+                  "Padrão (Relevância)", BookSortOption.relevance),
+              _buildSortOptionTile("A - Z", BookSortOption.alphabeticalAZ),
+              _buildSortOptionTile("Z - A", BookSortOption.alphabeticalZA),
+              _buildSortOptionTile("Mais Recentes", BookSortOption.newest),
+              const SizedBox(height: 10),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildSortOptionTile(String title, BookSortOption option) {
+    return Observer(
+      builder: (_) {
+        final isSelected = bookStore.currentExploreSort == option;
+        return ListTile(
+          title: Text(
+            title,
+            style: TextStyle(
+              color: isSelected ? const Color(0xFF3F8A99) : Colors.white70,
+              fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            ),
+          ),
+          trailing: isSelected
+              ? const Icon(Icons.check, color: Color(0xFF3F8A99))
+              : null,
+          onTap: () {
+            bookStore.setExploreSort(option);
+
+            Navigator.pop(context);
+
+            if (_selectedIndex == 0) {
+              setState(() {
+                _selectedIndex = 1;
+              });
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text("Indo para Explorar para ver a ordenação."),
+                  duration: Duration(seconds: 1),
+                ),
+              );
+            }
+          },
+        );
+      },
+    );
+  }
+
   AppBar _buildInitialAppBar() {
     return AppBar(
       backgroundColor: const Color(0xFF0C101C),
       elevation: 0,
       title: _buildSearchBar(),
       actions: [
-        IconButton(
-          icon: const Icon(Icons.filter_list, color: Colors.white),
-          onPressed: () {},
-        ),
+        if (_selectedIndex == 1)
+          IconButton(
+            icon: const Icon(Icons.sort, color: Colors.white),
+            tooltip: "Ordenar",
+            onPressed: _showSortOptions,
+          ),
       ],
     );
   }
@@ -45,7 +121,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildSearchBar() {
     return GestureDetector(
       onTap: () {
-        // TODO: criar busca
+        showSearch(
+          context: context,
+          delegate: BookSearchDelegate(),
+        );
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
@@ -67,116 +146,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildAppDrawer() {
-    final photoUrl = _currentUser?.photoURL;
-    return Drawer(
-      backgroundColor: const Color(0xFF191D3A),
-      child: ListView(
-        padding: EdgeInsets.zero,
-        children: [
-          DrawerHeader(
-            decoration: const BoxDecoration(
-              color: Color(0xFF0C101C),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Image.asset(
-                'assets/images/tramatec_logo.png',
-              ),
-            ),
-          ),
-          if (_currentUser != null)
-            ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.white24,
-                backgroundImage: (photoUrl != null && photoUrl.isNotEmpty)
-                    ? NetworkImage(photoUrl)
-                    : null,
-                child: (photoUrl == null || photoUrl.isEmpty)
-                    ? Text(
-                        _currentUser!.email![0].toUpperCase(),
-                        style: const TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.bold),
-                      )
-                    : null,
-              ),
-              title: Text(
-                _currentUser!.displayName ?? 'Usuário',
-                style: const TextStyle(color: Colors.white),
-              ),
-              subtitle: Text(
-                _currentUser!.email!,
-                style: const TextStyle(color: Colors.white70),
-              ),
-              onTap: () {
-                setState(() => _selectedIndex = 2);
-                Navigator.pop(context);
-              },
-            ),
-          ListTile(
-            leading:
-                const Icon(Icons.play_circle_outline, color: Colors.white70),
-            title: const Text(
-              'Continuar Lendo',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              // TODO: lógica para abrir o último livro que estava lendo
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.edit_document, color: Colors.white70),
-            title: const Text(
-              'Continuar Escrevendo',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              // TODO: lógica para abrir último livro que estava escrevendo
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.collections_bookmark_outlined,
-                color: Colors.white70),
-            title: const Text(
-              'Minha Biblioteca',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              // TODO: ir para tela da biblioteca
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.star_outline, color: Colors.white70),
-            title: const Text(
-              'Favoritos',
-              style: TextStyle(color: Colors.white),
-            ),
-            onTap: () {
-              // TODO: ir para tela de favoritos
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.logout, color: Colors.white70),
-            title: const Text(
-              'Sair',
-              style: TextStyle(color: Colors.white70),
-            ),
-            onTap: () async {
-              await FirebaseAuth.instance.signOut();
-              if (!mounted) return;
-              Navigator.pop(context);
-              Navigator.pushReplacementNamed(context, '/login');
-            },
-          )
-        ],
-      ),
-    );
-  }
-
   final List<Widget> _screens = [
     const InitialPageContent(),
     const ExploreScreen(),
@@ -188,10 +157,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF0C101C),
+      appBar: [0, 1].contains(_selectedIndex) ? _buildInitialAppBar() : null,
       body: _screens[_selectedIndex],
-      appBar: _selectedIndex == 0 ? _buildInitialAppBar() : null,
       bottomNavigationBar: _buildBottomNav(),
-      drawer: _buildAppDrawer(),
+      drawer: const CustomDrawer(),
     );
   }
 

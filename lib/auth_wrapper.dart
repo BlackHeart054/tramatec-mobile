@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:tramatec_app/screens/home_screen.dart';
+import 'package:tramatec_app/screens/login_screen.dart';
 import 'package:tramatec_app/screens/welcome_screen.dart';
 
 class AuthWrapper extends StatelessWidget {
@@ -18,10 +18,16 @@ class AuthWrapper extends StatelessWidget {
           );
         }
 
-        if (snapshot.hasData) {
-          return const HomeScreen();
-        } else {
-          return const WelcomeScreen(userName: "Visitante");
+        if (snapshot.hasData && snapshot.data != null) {
+          final User user = snapshot.data!;
+          return WelcomeScreen(
+            userName: user.displayName ?? "Leitor",
+            avatarUrl: user.photoURL,
+          );
+        } 
+        
+        else {
+          return const LoginScreen();
         }
       },
     );

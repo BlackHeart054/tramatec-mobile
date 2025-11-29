@@ -1,16 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CustomTextField extends StatelessWidget {
   final String label;
   final TextEditingController controller;
   final bool isPassword;
-  final bool hasError;
+  final TextInputType? keyboardType;
+  final List<TextInputFormatter>? inputFormatters;
+  final String? Function(String?)? validator;
+  final Function(String)? onChanged;
+  final int? maxLength;
 
-  const CustomTextField({super.key, 
+  const CustomTextField({
+    super.key,
     required this.label,
     required this.controller,
     this.isPassword = false,
-    this.hasError = false,
+    this.keyboardType,
+    this.inputFormatters,
+    this.validator,
+    this.onChanged,
+    this.maxLength,
   });
 
   @override
@@ -30,18 +40,28 @@ class CustomTextField extends StatelessWidget {
         ),
         const SizedBox(height: 8),
         TextFormField(
+          textCapitalization: TextCapitalization.none,
+          autocorrect: false,
+          enableSuggestions: false,
           controller: controller,
           obscureText: isPassword,
+          keyboardType: keyboardType,
+          inputFormatters: inputFormatters,
+          validator: validator,
+          onChanged: onChanged,
+          maxLength: maxLength,
+          autovalidateMode: AutovalidateMode.onUserInteraction, 
           style: const TextStyle(color: Colors.black),
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
+            counterText: "",
             contentPadding:
                 const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
             border: defaultBorder,
             enabledBorder: defaultBorder,
             focusedBorder: defaultBorder.copyWith(
-              borderSide: const BorderSide(color: Colors.blue, width: 2),
+              borderSide: const BorderSide(color: Color(0xFF3F8A99), width: 2),
             ),
             errorBorder: defaultBorder.copyWith(
               borderSide: const BorderSide(color: errorColor, width: 2),
@@ -49,9 +69,11 @@ class CustomTextField extends StatelessWidget {
             focusedErrorBorder: defaultBorder.copyWith(
               borderSide: const BorderSide(color: errorColor, width: 2),
             ),
-            suffixIcon: hasError && !isPassword
-                ? const Icon(Icons.cancel, color: errorColor)
-                : null,
+            errorStyle: const TextStyle(
+              color: Color(0xFFE53935), 
+              fontWeight: FontWeight.bold,
+              fontSize: 12
+            ),
           ),
         ),
       ],
