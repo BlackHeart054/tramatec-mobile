@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:dio/dio.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart';
@@ -334,7 +333,7 @@ abstract class _BookStore with Store {
   }
 
   @action
-  Future<String> openBook(Book book) async {
+  Future<Uint8List> openBook(Book book) async {
     if (book.downloadUrl == null) {
       throw "Este livro não possui arquivo digital disponível.";
     }
@@ -351,19 +350,32 @@ abstract class _BookStore with Store {
         lastReadBookId = book.id;
       }
 
-      Directory appDocDir = await getApplicationDocumentsDirectory();
-      String path = '${appDocDir.path}/${book.id}.epub';
-      File file = File(path);
+      if (kIsWeb) {
+        if (kDebugMode) print("Baixando livro para memória (Web)...");
+        final response = await http.get(Uri.parse(book.downloadUrl!));
+        
+        if (response.statusCode == 200) {
+          return response.bodyBytes;
+        } else {
+          throw "Erro ao baixar livro: ${response.statusCode}";
+        }
 
-      if (!file.existsSync()) {
-        await Dio().download(book.downloadUrl!, path);
+      } else {
+        Directory appDocDir = await getApplicationDocumentsDirectory();
+        String path = '${appDocDir.path}/${book.id}.epub';
+        File file = File(path);
+
+        if (!file.existsSync()) {
+          await Dio().download(book.downloadUrl!, path);
+        }
+
+        if (!File(path).existsSync()) {
+          throw "Falha ao baixar o arquivo EPUB.";
+        }
+        
+        return File(path).readAsBytes();
       }
 
-      if (!File(path).existsSync()) {
-        throw "Falha ao baixar o arquivo EPUB.";
-      }
-
-      return path;
     } catch (e) {
       throw "Erro ao preparar livro: $e";
     } finally {
@@ -372,15 +384,17 @@ abstract class _BookStore with Store {
   }
 
   @action
-  Future<String> resumeReading() async {
+  Future<Uint8List> resumeReading() async {
     if (lastReadBookId == null) {
       await fetchUserLibrary();
     }
 
     if (lastReadBookId != null) {
       try {
-        final book = myLibrary.firstWhere((b) => b.id == lastReadBookId,
-            orElse: () => throw "Livro não encontrado localmente.");
+        final book = myLibrary.firstWhere(
+            (b) => b.id == lastReadBookId,
+            orElse: () => throw "Livro não encontrado localmente."
+        );
         return await openBook(book);
       } catch (e) {
         throw "Erro ao retomar leitura: $e";

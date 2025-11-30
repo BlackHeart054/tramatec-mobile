@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:tramatec_app/config/service_locator.dart';
@@ -112,14 +114,12 @@ class CustomDrawer extends StatelessWidget {
                                 content: Text("Carregando sua leitura...")));
 
                         try {
-                          final path = await store.resumeReading();
-                          // ignore: use_build_context_synchronously
+                          final Uint8List bytes = await store.resumeReading();
                           Navigator.push(
-                              // ignore: use_build_context_synchronously
                               context,
                               MaterialPageRoute(
                                   builder: (_) => EpubReaderPage(
-                                      epubPath: path,
+                                      epubData: bytes,
                                       bookId: store.lastReadBookId!)));
                         } catch (e) {
                           // ignore: use_build_context_synchronously

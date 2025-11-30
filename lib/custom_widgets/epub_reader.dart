@@ -1,14 +1,14 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:epub_view/epub_view.dart';
 
 class EpubReaderPage extends StatefulWidget {
-  final String epubPath;
+  final Uint8List epubData;
   final String bookId;
 
   const EpubReaderPage({
     super.key,
-    required this.epubPath,
+    required this.epubData,
     required this.bookId,
   });
 
@@ -30,15 +30,8 @@ class _EpubReaderPageState extends State<EpubReaderPage> {
   }
 
   Future<void> _initEpub() async {
-    final file = File(widget.epubPath);
-
-    if (!file.existsSync()) {
-      if (mounted) Navigator.pop(context);
-      return;
-    }
-
     _epubController = EpubController(
-      document: EpubDocument.openFile(file),
+      document: EpubDocument.openData(widget.epubData),
     );
 
     if (mounted) {

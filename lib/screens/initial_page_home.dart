@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tramatec_app/config/service_locator.dart';
@@ -38,8 +40,7 @@ class _InitialPageContentState extends State<InitialPageContent> {
           try {
             lastReadBook = bookStore.myLibrary
                 .firstWhere((b) => b.id == bookStore.lastReadBookId);
-          } catch (_) {
-          }
+          } catch (_) {}
         }
 
         return RefreshIndicator(
@@ -62,18 +63,14 @@ class _InitialPageContentState extends State<InitialPageContent> {
                 ),
                 _buildContinueReadingCard(lastReadBook),
               ],
-
               if (bookStore.myLibrary.isNotEmpty)
                 _buildHorizontalSection(
                     "Minha Biblioteca", bookStore.myLibrary),
-
               if (bookStore.favorites.isNotEmpty)
                 _buildHorizontalSection("Favoritos", bookStore.favorites),
-
               if (bookStore.bookmarks.isNotEmpty)
                 _buildHorizontalSection(
                     "Marcados para Ler", bookStore.bookmarks),
-
               if (bookStore.myLibrary.isEmpty &&
                   bookStore.favorites.isEmpty &&
                   bookStore.bookmarks.isEmpty)
@@ -131,13 +128,15 @@ class _InitialPageContentState extends State<InitialPageContent> {
           borderRadius: BorderRadius.circular(12),
           onTap: () async {
             try {
-              final path = await bookStore.openBook(book);
-              if (mounted) {
+              final Uint8List bytes = await bookStore.openBook(book);
+              if (context.mounted) {
                 Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (_) =>
-                            EpubReaderPage(epubPath: path, bookId: book.id)));
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        EpubReaderPage(epubData: bytes, bookId: book.id),
+                  ),
+                );
               }
             } catch (e) {
               if (mounted) {

@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:tramatec_app/screens/change_password_screen.dart';
+import 'package:tramatec_app/screens/edit_profile_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -45,7 +47,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: TextStyle(color: Colors.grey)),
             trailing: const Icon(Icons.arrow_forward_ios,
                 color: Colors.white70, size: 16),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const EditProfileScreen()));
+            },
           ),
           ListTile(
             leading: const Icon(Icons.lock_outline, color: Colors.white70),
@@ -53,7 +58,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 style: TextStyle(color: Colors.white)),
             trailing: const Icon(Icons.arrow_forward_ios,
                 color: Colors.white70, size: 16),
-            onTap: () {},
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                      builder: (_) => const ChangePasswordScreen()));
+            },
           ),
           const Divider(color: Colors.white24),
           _buildSectionHeader('Preferências'),

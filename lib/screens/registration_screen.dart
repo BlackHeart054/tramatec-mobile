@@ -92,8 +92,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
 
       String errorMessage = "Ocorreu um erro ao cadastrar.";
       if (e.code == 'weak-password') errorMessage = 'Senha muito fraca.';
-      if (e.code == 'email-already-in-use')
+      if (e.code == 'email-already-in-use') {
         errorMessage = 'Email já cadastrado.';
+      }
       if (e.code == 'invalid-email') errorMessage = 'Email inválido.';
 
       if (mounted) {
@@ -173,8 +174,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       controller: _emailController,
                       keyboardType: TextInputType.emailAddress,
                       validator: (val) {
-                        if (val == null || val.isEmpty)
+                        if (val == null || val.isEmpty) {
                           return 'Email obrigatório';
+                        }
                         if (!isValidEmail(val)) return 'Email inválido';
                         return null;
                       },
@@ -194,8 +196,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                               FilteringTextInputFormatter.digitsOnly
                             ],
                             validator: (val) {
-                              if (val == null || val.length < 2)
+                              if (val == null || val.length < 2) {
                                 return 'Inválido';
+                              }
                               return null;
                             },
                           ),
@@ -231,10 +234,12 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                       controller: _confirmarSenhaController,
                       isPassword: true,
                       validator: (val) {
-                        if (val == null || val.isEmpty)
+                        if (val == null || val.isEmpty) {
                           return 'Confirmação obrigatória';
-                        if (val != _senhaController.text)
+                        }
+                        if (val != _senhaController.text) {
                           return 'Senhas não conferem';
+                        }
                         return null;
                       },
                     ),

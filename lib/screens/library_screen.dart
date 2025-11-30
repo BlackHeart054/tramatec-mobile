@@ -1,7 +1,10 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tramatec_app/config/service_locator.dart';
 import 'package:tramatec_app/custom_widgets/book_card.dart';
+import 'package:tramatec_app/custom_widgets/epub_reader.dart';
 import 'package:tramatec_app/stores/book_store.dart';
 
 class LibraryScreen extends StatefulWidget {
@@ -76,8 +79,17 @@ class _LibraryScreenState extends State<LibraryScreen> {
               final book = bookStore.myLibrary[index];
               return BookCard(
                 book: book,
-                onTap: () {
-                  bookStore.openBook(book);
+                onTap: () async {
+                  final Uint8List bytes = await bookStore.openBook(book);
+                  if (context.mounted) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            EpubReaderPage(epubData: bytes, bookId: book.id),
+                      ),
+                    );
+                  }
                 },
               );
             },

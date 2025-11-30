@@ -242,7 +242,7 @@ mixin _$BookStore on _BookStore, Store {
       AsyncAction('_BookStore.openBook', context: context);
 
   @override
-  Future<String> openBook(Book book) {
+  Future<Uint8List> openBook(Book book) {
     return _$openBookAsyncAction.run(() => super.openBook(book));
   }
 
@@ -250,7 +250,7 @@ mixin _$BookStore on _BookStore, Store {
       AsyncAction('_BookStore.resumeReading', context: context);
 
   @override
-  Future<String> resumeReading() {
+  Future<Uint8List> resumeReading() {
     return _$resumeReadingAsyncAction.run(() => super.resumeReading());
   }
 

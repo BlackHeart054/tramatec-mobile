@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tramatec_app/config/service_locator.dart';
@@ -90,13 +92,13 @@ class _SectionBooksScreenState extends State<SectionBooksScreen> {
                 book: book,
                 onTap: () async {
                   try {
-                    final path = await bookStore.openBook(book);
+                    final Uint8List bytes = await bookStore.openBook(book);
                     if (context.mounted) {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (_) =>
-                              EpubReaderPage(epubPath: path, bookId: book.id),
+                              EpubReaderPage(epubData: bytes, bookId: book.id),
                         ),
                       );
                     }

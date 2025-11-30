@@ -17,10 +17,7 @@ import 'package:flutter/foundation.dart'
 class DefaultFirebaseOptions {
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
-      throw UnsupportedError(
-        'DefaultFirebaseOptions have not been configured for web - '
-        'you can reconfigure this by running the FlutterFire CLI again.',
-      );
+      return web;
     }
     switch (defaultTargetPlatform) {
       case TargetPlatform.android:
@@ -65,5 +62,15 @@ class DefaultFirebaseOptions {
     storageBucket: 'tramatec-app.firebasestorage.app',
     iosClientId: '294355361521-sf66vr8vcr5o755l3bsssrcei96avra1.apps.googleusercontent.com',
     iosBundleId: 'com.example.tramatecApp',
+  );
+  
+  static const FirebaseOptions web = FirebaseOptions(
+    apiKey: "AIzaSyBUWv8fETBsFULzedUoPAWw7RtJKVSmuPg",
+    authDomain: "tramatec-app.firebaseapp.com",
+    projectId: "tramatec-app",
+    storageBucket: "tramatec-app.firebasestorage.app",
+    messagingSenderId: "294355361521",
+    appId: "1:294355361521:web:5723fbd6b8dbb3493e9350",
+    measurementId: "G-2Z9NY5DN3Z"
   );
 }

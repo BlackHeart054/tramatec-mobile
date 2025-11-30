@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tramatec_app/config/service_locator.dart';
@@ -370,10 +372,16 @@ class BookPreviewSheet extends StatelessWidget {
                           content: Text('Preparando seu livro...')));
 
                       try {
-                        final String path = await bookStore.openBook(book);
-                        navigator.push(MaterialPageRoute(
+                        final Uint8List bytes =
+                            await getIt<BookStore>().openBook(book);
+
+                        navigator.push(
+                          MaterialPageRoute(
                             builder: (_) => EpubReaderPage(
-                                epubPath: path, bookId: book.id)));
+                                epubData: bytes,
+                                bookId: book.id),
+                          ),
+                        );
                       } catch (e) {
                         scaffoldMessenger.showSnackBar(SnackBar(
                             content: Text(e.toString()),
@@ -387,9 +395,7 @@ class BookPreviewSheet extends StatelessWidget {
                             style: TextStyle(color: Colors.white)),
                   ),
                 ),
-
                 const SizedBox(width: 8),
-
                 Observer(builder: (_) {
                   final isFav = bookStore.favorites.any((b) => b.id == book.id);
                   return Container(
@@ -407,7 +413,6 @@ class BookPreviewSheet extends StatelessWidget {
                     ),
                   );
                 }),
-
                 const SizedBox(width: 8),
                 Observer(builder: (_) {
                   final isMarked =
