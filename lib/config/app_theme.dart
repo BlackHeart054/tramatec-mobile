@@ -1,3 +1,5 @@
+// ignore_for_file: deprecated_member_use
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -25,7 +27,6 @@ class AppTheme {
       highlightColor: highlightBlue.withOpacity(0.15),
       textTheme: textTheme,
 
-      // AppBar escura com detalhes em azul
       appBarTheme: AppBarTheme(
         backgroundColor: surfaceBlue,
         elevation: 0,
@@ -37,7 +38,6 @@ class AppTheme {
         iconTheme: const IconThemeData(color: Colors.white),
       ),
 
-      // Dialogs elegantes azulados
       dialogTheme: DialogThemeData(
         backgroundColor: dialogBlue,
         shape: RoundedRectangleBorder(
@@ -54,7 +54,6 @@ class AppTheme {
         ),
       ),
 
-      // Botões elevados com azul como destaque
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: primaryBlue,
@@ -68,7 +67,6 @@ class AppTheme {
         ),
       ),
 
-      // Campos de texto com azul discreto
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: surfaceBlue,
@@ -88,10 +86,8 @@ class AppTheme {
         hintStyle: const TextStyle(color: Colors.white38),
       ),
 
-      // Ícones brancos para boa leitura
       iconTheme: const IconThemeData(color: Colors.white),
 
-      // Cards azulados
       cardColor: surfaceBlue,
       cardTheme: CardThemeData(
         color: surfaceBlue,
@@ -102,7 +98,6 @@ class AppTheme {
         ),
       ),
 
-      // Barra de navegação inferior
       bottomNavigationBarTheme: BottomNavigationBarThemeData(
         backgroundColor: darkBlue,
         selectedItemColor: primaryBlue,
@@ -111,7 +106,6 @@ class AppTheme {
         showUnselectedLabels: false,
       ),
 
-      // Switches e radios azulados
       switchTheme: SwitchThemeData(
         thumbColor: MaterialStateProperty.resolveWith(
           (states) => states.contains(MaterialState.selected)

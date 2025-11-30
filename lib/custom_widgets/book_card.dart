@@ -1,6 +1,7 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_mobx/flutter_mobx.dart'; // Importante para o Observer
-import 'package:tramatec_app/config/service_locator.dart'; // Para pegar a store
+import 'package:flutter_mobx/flutter_mobx.dart';
+import 'package:tramatec_app/config/service_locator.dart';
 import 'package:tramatec_app/models/book_model.dart';
 import 'package:tramatec_app/stores/book_store.dart';
 
@@ -16,7 +17,6 @@ class BookCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Recupera a instância da Store para verificar estados e chamar ações
     final BookStore bookStore = getIt<BookStore>();
 
     return InkWell(
@@ -31,7 +31,6 @@ class BookCard extends StatelessWidget {
           children: [
             Stack(
               children: [
-                // 1. IMAGEM (Capa)
                 ClipRRect(
                   borderRadius: BorderRadius.circular(12),
                   child: book.coverUrl.startsWith('http')
@@ -89,7 +88,6 @@ class BookCard extends StatelessWidget {
                         ),
                 ),
 
-                // 2. BARRA DE AÇÕES (Overlay)
                 Positioned(
                   bottom: 0,
                   left: 0,
@@ -97,16 +95,14 @@ class BookCard extends StatelessWidget {
                   child: Container(
                     padding: const EdgeInsets.symmetric(vertical: 4),
                     decoration: const BoxDecoration(
-                      color: Colors.black54, // Fundo semitransparente
+                      color: Colors.black54,
                       borderRadius: BorderRadius.only(
                         bottomLeft: Radius.circular(12),
                         bottomRight: Radius.circular(12),
                       ),
                     ),
-                    // Usamos Observer para os ícones reagirem a mudanças na Store
                     child: Observer(
                       builder: (_) {
-                        // Verifica estados
                         final isMarked = bookStore.bookmarks.any((b) => b.id == book.id);
                         final isDownloaded = bookStore.myLibrary.any((b) => b.id == book.id);
                         final isFav = bookStore.favorites.any((b) => b.id == book.id);
@@ -114,7 +110,6 @@ class BookCard extends StatelessWidget {
                         return Row(
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
                           children: [
-                            // BOTÃO MARCAR (Bookmark)
                             IconButton(
                               onPressed: () => bookStore.toggleBookmark(book),
                               tooltip: isMarked ? "Remover marcação" : "Marcar para ler",
@@ -125,7 +120,6 @@ class BookCard extends StatelessWidget {
                               ),
                             ),
 
-                            // BOTÃO BAIXAR (Download)
                             IconButton(
                               onPressed: () async {
                                 if (isDownloaded) {
@@ -137,12 +131,7 @@ class BookCard extends StatelessWidget {
                                     const SnackBar(content: Text("Baixando livro...")),
                                   );
                                   try {
-                                    // Apenas baixa e adiciona à biblioteca, não abre o leitor
                                     await bookStore.addToLibrary(book);
-                                    // Opcional: Se quiser garantir o download do arquivo físico agora:
-                                    // await bookStore.openBook(book); (Mas isso abre a tela)
-                                    // Para apenas baixar silenciosamente, teria que criar um método downloadOnly na store.
-                                    // Por enquanto, usar addToLibrary já marca como "meus livros".
                                     
                                     if(context.mounted) {
                                        ScaffoldMessenger.of(context).showSnackBar(
@@ -153,7 +142,9 @@ class BookCard extends StatelessWidget {
                                       );
                                     }
                                   } catch (e) {
-                                    // erro
+                                    if (kDebugMode) {
+                                      print("Erro ao baixar livro: $e");
+                                    }
                                   }
                                 }
                               },
@@ -165,12 +156,11 @@ class BookCard extends StatelessWidget {
                               ),
                             ),
 
-                            // BOTÃO FAVORITAR (Estrela/Coração)
                             IconButton(
                               onPressed: () => bookStore.toggleFavorite(book),
                               tooltip: isFav ? "Remover dos favoritos" : "Favoritar",
                               icon: Icon(
-                                isFav ? Icons.favorite : Icons.favorite_border, // Usei favorite (coração) para consistência
+                                isFav ? Icons.favorite : Icons.favorite_border, 
                                 color: isFav ? Colors.redAccent : Colors.white,
                                 size: 22,
                               ),
@@ -185,7 +175,6 @@ class BookCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             
-            // TÍTULO
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(
@@ -200,7 +189,6 @@ class BookCard extends StatelessWidget {
             ),
             const SizedBox(height: 2),
             
-            // AUTOR
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 4),
               child: Text(

@@ -354,7 +354,6 @@ class BookPreviewSheet extends StatelessWidget {
             const SizedBox(height: 32),
             Row(
               children: [
-                // 1. Botão LER AGORA
                 Expanded(
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
@@ -391,7 +390,6 @@ class BookPreviewSheet extends StatelessWidget {
 
                 const SizedBox(width: 8),
 
-                // 2. Botão FAVORITAR (Coração)
                 Observer(builder: (_) {
                   final isFav = bookStore.favorites.any((b) => b.id == book.id);
                   return Container(
@@ -411,8 +409,6 @@ class BookPreviewSheet extends StatelessWidget {
                 }),
 
                 const SizedBox(width: 8),
-
-                // 3. Botão MARCAR (Bookmark)
                 Observer(builder: (_) {
                   final isMarked =
                       bookStore.bookmarks.any((b) => b.id == book.id);

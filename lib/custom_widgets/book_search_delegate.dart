@@ -138,7 +138,6 @@ class BookSearchDelegate extends SearchDelegate {
                 subtitle: Text(book.authorName ?? "Autor desconhecido",
                     style: const TextStyle(color: Colors.white54)),
                 onTap: () {
-                  // Fecha o teclado para melhor UX
                   FocusScope.of(context).unfocus();
                   showModalBottomSheet(
                     context: context,

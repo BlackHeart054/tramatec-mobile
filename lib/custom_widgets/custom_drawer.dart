@@ -47,7 +47,7 @@ class CustomDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final User? user = FirebaseAuth.instance.currentUser;
 
-    final Color backgroundColor = const Color(0xFF0C101C);
+    final Color backgroundColor = const Color(0xFF131A2C);
     final Color cardColor = const Color(0xFF131A2C);
     final Color textColor = Colors.white;
     final Color textSecondaryColor = Colors.white70;
@@ -115,6 +115,7 @@ class CustomDrawer extends StatelessWidget {
                           final path = await store.resumeReading();
                           // ignore: use_build_context_synchronously
                           Navigator.push(
+                              // ignore: use_build_context_synchronously
                               context,
                               MaterialPageRoute(
                                   builder: (_) => EpubReaderPage(
@@ -130,8 +131,6 @@ class CustomDrawer extends StatelessWidget {
                         }
                       },
                     ),
-
-                    // 2. MINHA BIBLIOTECA
                     _DrawerButtonCard(
                       cardColor: cardColor,
                       label: 'Minha Biblioteca',
@@ -146,14 +145,11 @@ class CustomDrawer extends StatelessWidget {
                                 builder: (_) => const LibraryScreen()));
                       },
                     ),
-
-                    // 3. FAVORITOS (Atualizado)
                     _DrawerButtonCard(
                       cardColor: cardColor,
                       label: 'Favoritos',
-                      icon: Icons
-                          .favorite_border, // Mudei ícone para ficar visualmente melhor
-                      iconColor: Colors.redAccent, // Destaque na cor
+                      icon: Icons.favorite_border,
+                      iconColor: Colors.redAccent,
                       textColor: textColor,
                       onPressed: () {
                         Navigator.pop(context);
@@ -168,8 +164,6 @@ class CustomDrawer extends StatelessWidget {
                         );
                       },
                     ),
-
-                    // 4. MARCAÇÕES (Novo!)
                     _DrawerButtonCard(
                       cardColor: cardColor,
                       label: 'Marcações',

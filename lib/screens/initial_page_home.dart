@@ -4,7 +4,7 @@ import 'package:tramatec_app/config/service_locator.dart';
 import 'package:tramatec_app/custom_widgets/book_card.dart';
 import 'package:tramatec_app/custom_widgets/epub_reader.dart';
 import 'package:tramatec_app/models/book_model.dart';
-import 'package:tramatec_app/screens/explore_screen.dart'; // Para reutilizar BookPreviewSheet
+import 'package:tramatec_app/screens/explore_screen.dart';
 import 'package:tramatec_app/stores/book_store.dart';
 
 class InitialPageContent extends StatefulWidget {
@@ -21,7 +21,6 @@ class _InitialPageContentState extends State<InitialPageContent> {
   void initState() {
     super.initState();
     bookStore = getIt<BookStore>();
-    // Carrega todos os dados do usuário ao iniciar a Home
     bookStore.fetchUserData();
   }
 
@@ -34,15 +33,12 @@ class _InitialPageContentState extends State<InitialPageContent> {
               child: CircularProgressIndicator(color: Colors.white));
         }
 
-        // Tenta achar o objeto do último livro lido
         Book? lastReadBook;
         if (bookStore.lastReadBookId != null) {
-          // Procura na biblioteca primeiro
           try {
             lastReadBook = bookStore.myLibrary
                 .firstWhere((b) => b.id == bookStore.lastReadBookId);
           } catch (_) {
-            // Se não achar, fica null e não mostra o card
           }
         }
 
@@ -53,7 +49,6 @@ class _InitialPageContentState extends State<InitialPageContent> {
           child: ListView(
             padding: const EdgeInsets.only(bottom: 20),
             children: [
-              // 1. SEÇÃO RETOMAR LEITURA (Destaque)
               if (lastReadBook != null) ...[
                 const Padding(
                   padding: EdgeInsets.fromLTRB(16, 20, 16, 10),
@@ -68,21 +63,17 @@ class _InitialPageContentState extends State<InitialPageContent> {
                 _buildContinueReadingCard(lastReadBook),
               ],
 
-              // 2. MINHA BIBLIOTECA (Baixados)
               if (bookStore.myLibrary.isNotEmpty)
                 _buildHorizontalSection(
                     "Minha Biblioteca", bookStore.myLibrary),
 
-              // 3. FAVORITOS
               if (bookStore.favorites.isNotEmpty)
                 _buildHorizontalSection("Favoritos", bookStore.favorites),
 
-              // 4. MARCADOS
               if (bookStore.bookmarks.isNotEmpty)
                 _buildHorizontalSection(
                     "Marcados para Ler", bookStore.bookmarks),
 
-              // Mensagem de estado vazio se o usuário for novo
               if (bookStore.myLibrary.isEmpty &&
                   bookStore.favorites.isEmpty &&
                   bookStore.bookmarks.isEmpty)
@@ -101,8 +92,6 @@ class _InitialPageContentState extends State<InitialPageContent> {
                       ),
                       TextButton(
                         onPressed: () {
-                          // O ideal seria mudar a aba para Explore via callback,
-                          // mas uma mensagem simples ajuda
                           ScaffoldMessenger.of(context).showSnackBar(
                             const SnackBar(
                                 content: Text(
@@ -121,7 +110,6 @@ class _InitialPageContentState extends State<InitialPageContent> {
     );
   }
 
-  // Card Especial Largo para "Retomar Leitura"
   Widget _buildContinueReadingCard(Book book) {
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -212,7 +200,6 @@ class _InitialPageContentState extends State<InitialPageContent> {
     );
   }
 
-  // Carrossel Genérico Reutilizável
   Widget _buildHorizontalSection(String title, List<Book> books) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -236,7 +223,6 @@ class _InitialPageContentState extends State<InitialPageContent> {
               return BookCard(
                 book: book,
                 onTap: () {
-                  // Abre o Preview Sheet (Explorar) para dar opções
                   showModalBottomSheet(
                     context: context,
                     isScrollControlled: true,

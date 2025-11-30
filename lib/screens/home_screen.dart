@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tramatec_app/custom_widgets/book_search_delegate.dart';
 import 'package:tramatec_app/custom_widgets/custom_drawer.dart';
+import 'package:tramatec_app/screens/create_dashboard_screen.dart';
 import 'package:tramatec_app/screens/settings_screen.dart';
 import 'package:tramatec_app/stores/book_store.dart';
 
@@ -149,7 +150,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<Widget> _screens = [
     const InitialPageContent(),
     const ExploreScreen(),
-    const Center(child: Text('Criar', style: TextStyle(color: Colors.white))),
+    const CreateDashboardScreen(),
     const SettingsScreen(),
   ];
 

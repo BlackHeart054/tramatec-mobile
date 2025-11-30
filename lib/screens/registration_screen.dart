@@ -40,22 +40,19 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
   }
 
   Future<void> _registerUser() async {
-    if (!_formKey.currentState!.validate()) {
-      return;
-    }
+    if (!_formKey.currentState!.validate()) return;
 
     if (_senhaController.text != _confirmarSenhaController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-            backgroundColor: Colors.orange,
-            content: Text("As senhas não coincidem.")),
+          backgroundColor: Colors.orange,
+          content: Text("As senhas não coincidem."),
+        ),
       );
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() => _isLoading = true);
 
     try {
       UserCredential userCredential =
@@ -91,30 +88,21 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } on FirebaseAuthException catch (e) {
-      if (kDebugMode) {
-        print("Erro Auth: ${e.code}");
-      }
+      if (kDebugMode) print("Erro Auth: ${e.code}");
+
       String errorMessage = "Ocorreu um erro ao cadastrar.";
-      if (e.code == 'weak-password') {
-        errorMessage = 'A senha fornecida é muito fraca.';
-      } else if (e.code == 'email-already-in-use') {
-        errorMessage = 'Já existe uma conta com este email.';
-      } else if (e.code == 'invalid-email') {
-        errorMessage = 'O email fornecido é inválido.';
-      }
+      if (e.code == 'weak-password') errorMessage = 'Senha muito fraca.';
+      if (e.code == 'email-already-in-use')
+        errorMessage = 'Email já cadastrado.';
+      if (e.code == 'invalid-email') errorMessage = 'Email inválido.';
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: Colors.red,
-            content: Text(errorMessage),
-          ),
+          SnackBar(backgroundColor: Colors.red, content: Text(errorMessage)),
         );
       }
     } catch (e) {
-      if (kDebugMode) {
-        print("Erro Geral: $e");
-      }
+      if (kDebugMode) print("Erro Geral: $e");
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -124,241 +112,190 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
+      if (mounted) setState(() => _isLoading = false);
     }
-  }
-
-  double _scaleForWidth(double screenWidth) {
-    return (screenWidth / 375.0).clamp(0.85, 1.15);
   }
 
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    final double scale = _scaleForWidth(size.width);
-
-    final TextStyle titleStyle = TextStyle(
-      color: Colors.white,
-      fontSize: (22.0 * scale).clamp(18.0, 26.0),
-      fontWeight: FontWeight.bold,
-      height: 1.3,
-    );
-
-    final TextStyle linkBaseStyle = TextStyle(
-      color: Colors.white70,
-      fontSize: (12.0 * scale).clamp(11.0, 14.0),
-    );
 
     return Scaffold(
       body: BackgroundTemplate(
-        backgroundColor: const Color(0xFF0C101C),
-        showLogo: false,
+        backgroundColor: const Color(0xFF131A2C),
+        showLogo: true,
         showVersion: false,
-        child: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) {
-              return SingleChildScrollView(
-                padding: EdgeInsets.symmetric(
-                  horizontal: (size.width * 0.06).clamp(12.0, 32.0),
-                  vertical: (size.height * 0.015).clamp(8.0, 24.0),
-                ),
-                child: ConstrainedBox(
-                  constraints: BoxConstraints(
-                    minHeight: constraints.maxHeight - 40,
-                    maxWidth: 520,
-                  ),
-                  child: IntrinsicHeight(
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Align(
-                            alignment: Alignment.topLeft,
-                            child: IconButton(
-                              icon: const Icon(Icons.arrow_back,
-                                  color: Colors.white),
-                              onPressed: () => Navigator.of(context).pop(),
-                            ),
-                          ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                'VAMOS DAR INÍCIO A\nNOSSA AVENTURA?',
-                                textAlign: TextAlign.center,
-                                style: titleStyle,
-                              ),
-                              const SizedBox(height: 20),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    child: CustomTextField(
-                                      label: 'NOME',
-                                      controller: _nomeController,
-                                      validator: (val) =>
-                                          validateRequired(val, 'Nome'),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: CustomTextField(
-                                      label: 'SOBRENOME',
-                                      controller: _sobrenomeController,
-                                      validator: (val) =>
-                                          validateRequired(val, 'Sobrenome'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: size.height * 0.015),
-                              CustomTextField(
-                                label: 'EMAIL',
-                                controller: _emailController,
-                                keyboardType: TextInputType.emailAddress,
-                                validator: (val) {
-                                  if (val == null || val.isEmpty) {
-                                    return 'Email obrigatório';
-                                  }
-                                  if (!isValidEmail(val)) {
-                                    return 'Email inválido';
-                                  }
-                                  return null;
-                                },
-                              ),
-                              SizedBox(height: size.height * 0.015),
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Expanded(
-                                    flex: 2,
-                                    child: CustomTextField(
-                                      label: 'DDD',
-                                      controller: _dddController,
-                                      keyboardType: TextInputType.number,
-                                      maxLength: 2,
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.digitsOnly
-                                      ],
-                                      validator: (val) {
-                                        if (val == null || val.length < 2) {
-                                          return 'Inválido';
-                                        }
-                                        return null;
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    flex: 5,
-                                    child: CustomTextField(
-                                      label: 'TELEFONE',
-                                      controller: _telefoneController,
-                                      keyboardType: TextInputType.number,
-                                      maxLength: 9,
-                                      inputFormatters: [
-                                        FilteringTextInputFormatter.digitsOnly
-                                      ],
-                                      validator: (val) =>
-                                          validateRequired(val, 'Telefone'),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: size.height * 0.015),
-                              CustomTextField(
-                                label: 'SENHA',
-                                controller: _senhaController,
-                                isPassword: true,
-                                validator: validatePassword,
-                              ),
-                              SizedBox(height: size.height * 0.015),
-                              CustomTextField(
-                                label: 'CONFIRMAR SENHA',
-                                controller: _confirmarSenhaController,
-                                isPassword: true,
-                                validator: (val) {
-                                  if (val == null || val.isEmpty) {
-                                    return 'Confirmação obrigatória';
-                                  }
-                                  if (val != _senhaController.text) {
-                                    return 'Senhas não conferem';
-                                  }
-                                  return null;
-                                },
-                              ),
-                            ],
-                          ),
-                          Column(
-                            children: [
-                              SizedBox(height: size.height * 0.03),
-                              SizedBox(
-                                height: (size.height * 0.065).clamp(44.0, 54.0),
-                                width: double.infinity,
-                                child: ElevatedButton(
-                                  onPressed: _isLoading ? null : _registerUser,
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFF3F8A99),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  child: _isLoading
-                                      ? const CircularProgressIndicator(
-                                          color: Colors.white)
-                                      : const Text(
-                                          'CADASTRAR',
-                                          style: TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                          ),
-                                        ),
-                                ),
-                              ),
-                              SizedBox(height: size.height * 0.015),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text('JÁ POSSUI UMA CONTA? ',
-                                      style: linkBaseStyle),
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.pop(context);
-                                    },
-                                    style: TextButton.styleFrom(
-                                      padding: const EdgeInsets.symmetric(
-                                          horizontal: 4),
-                                      minimumSize: Size.zero,
-                                      tapTargetSize:
-                                          MaterialTapTargetSize.shrinkWrap,
-                                    ),
-                                    child: Text(
-                                      'ENTRE AQUI',
-                                      style: linkBaseStyle.copyWith(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                            ],
-                          ),
-                        ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 520),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    Text(
+                      'VAMOS DAR INÍCIO A\nNOSSA AVENTURA?',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                        height: 1.3,
                       ),
                     ),
-                  ),
+                    const SizedBox(height: 24),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          child: CustomTextField(
+                            label: 'NOME',
+                            controller: _nomeController,
+                            validator: (val) => validateRequired(val, 'Nome'),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: CustomTextField(
+                            label: 'SOBRENOME',
+                            controller: _sobrenomeController,
+                            validator: (val) =>
+                                validateRequired(val, 'Sobrenome'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    CustomTextField(
+                      label: 'EMAIL',
+                      controller: _emailController,
+                      keyboardType: TextInputType.emailAddress,
+                      validator: (val) {
+                        if (val == null || val.isEmpty)
+                          return 'Email obrigatório';
+                        if (!isValidEmail(val)) return 'Email inválido';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 16),
+
+                    Row(
+                      children: [
+                        Expanded(
+                          flex: 2,
+                          child: CustomTextField(
+                            label: 'DDD',
+                            controller: _dddController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 2,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            validator: (val) {
+                              if (val == null || val.length < 2)
+                                return 'Inválido';
+                              return null;
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          flex: 5,
+                          child: CustomTextField(
+                            label: 'TELEFONE',
+                            controller: _telefoneController,
+                            keyboardType: TextInputType.number,
+                            maxLength: 9,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly
+                            ],
+                            validator: (val) =>
+                                validateRequired(val, 'Telefone'),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+
+                    CustomTextField(
+                      label: 'SENHA',
+                      controller: _senhaController,
+                      isPassword: true,
+                      validator: validatePassword,
+                    ),
+                    const SizedBox(height: 16),
+                    CustomTextField(
+                      label: 'CONFIRMAR SENHA',
+                      controller: _confirmarSenhaController,
+                      isPassword: true,
+                      validator: (val) {
+                        if (val == null || val.isEmpty)
+                          return 'Confirmação obrigatória';
+                        if (val != _senhaController.text)
+                          return 'Senhas não conferem';
+                        return null;
+                      },
+                    ),
+                    const SizedBox(height: 32),
+
+                    SizedBox(
+                      width: double.infinity,
+                      height: 50,
+                      child: ElevatedButton(
+                        onPressed: _isLoading ? null : _registerUser,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.blue,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: _isLoading
+                            ? const CircularProgressIndicator(
+                                color: Colors.white)
+                            : const Text(
+                                'CADASTRAR',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                  color: Colors.white,
+                                ),
+                              ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Text(
+                          'JÁ POSSUI UMA CONTA? ',
+                          style: TextStyle(color: Colors.white70, fontSize: 13),
+                        ),
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            'ENTRE AQUI',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 24),
+                  ],
                 ),
-              );
-            },
+              ),
+            ),
           ),
         ),
       ),

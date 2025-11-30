@@ -13,10 +13,10 @@ class CustomBackground extends StatelessWidget {
       children: [
         Flexible(
           child: Container(
-            color: backgroundColor,
+            color: Color(0xFF131A2C),
             child: SvgPicture.asset(
               'assets/images/background.svg',
-              fit: BoxFit.fill,
+              fit: BoxFit.cover,
             ),
           ),
         ),

@@ -175,7 +175,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       body: BackgroundTemplate(
-        backgroundColor: const Color(0xFF0C101C),
+        backgroundColor: const Color(0xFF131A2C),
         showLogo: true,
         showVersion: true,
         child: SafeArea(
@@ -276,7 +276,7 @@ class _LoginScreenState extends State<LoginScreen> {
                                   onPressed:
                                       _isLoading ? null : _validateAndLogin,
                                   style: ElevatedButton.styleFrom(
-                                    backgroundColor: const Color(0xFFE53935),
+                                    backgroundColor: Colors.blue,
                                     shape: RoundedRectangleBorder(
                                       borderRadius: BorderRadius.circular(8),
                                     ),

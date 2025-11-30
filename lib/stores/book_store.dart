@@ -279,18 +279,16 @@ abstract class _BookStore with Store {
     if (user == null) return;
 
     try {
-      // Salva na subcoleção 'library' dentro do documento do usuário
       await _firestore
           .collection('users')
           .doc(user.uid)
           .collection('library')
-          .doc(book.id) // Usa o mesmo ID do livro
+          .doc(book.id)
           .set({
         ...book.toMap(),
         'addedAt': FieldValue.serverTimestamp(),
       });
 
-      // Atualiza a lista localmente
       if (!myLibrary.any((b) => b.id == book.id)) {
         myLibrary.add(book);
       }
@@ -322,7 +320,6 @@ abstract class _BookStore with Store {
           snapshot.docs.map((doc) => Book.fromFirestore(doc)).toList();
       myLibrary = ObservableList.of(books);
 
-      // Também aproveita para pegar qual foi o último livro lido
       final userDoc = await _firestore.collection('users').doc(user.uid).get();
       if (userDoc.exists && userDoc.data()!.containsKey('lastBookId')) {
         lastReadBookId = userDoc.data()!['lastBookId'];
@@ -366,7 +363,7 @@ abstract class _BookStore with Store {
         throw "Falha ao baixar o arquivo EPUB.";
       }
 
-      return path; // Retorna o caminho para a UI abrir
+      return path;
     } catch (e) {
       throw "Erro ao preparar livro: $e";
     } finally {
@@ -374,7 +371,6 @@ abstract class _BookStore with Store {
     }
   }
 
-  // MODIFICADO: Retorna o PATH do arquivo ou lança erro
   @action
   Future<String> resumeReading() async {
     if (lastReadBookId == null) {
@@ -385,7 +381,7 @@ abstract class _BookStore with Store {
       try {
         final book = myLibrary.firstWhere((b) => b.id == lastReadBookId,
             orElse: () => throw "Livro não encontrado localmente.");
-        return await openBook(book); // Reutiliza a lógica
+        return await openBook(book);
       } catch (e) {
         throw "Erro ao retomar leitura: $e";
       }
@@ -401,10 +397,8 @@ abstract class _BookStore with Store {
 
     isLoading = true;
     try {
-      // 1. Carrega Biblioteca (Baixados/Lidos) e LastRead
       await fetchUserLibrary();
 
-      // 2. Carrega Favoritos
       final favSnapshot = await _firestore
           .collection('users')
           .doc(user.uid)
@@ -414,7 +408,6 @@ abstract class _BookStore with Store {
       favorites = ObservableList.of(
           favSnapshot.docs.map((doc) => Book.fromFirestore(doc)).toList());
 
-      // 3. Carrega Marcados (Bookmarks)
       final markSnapshot = await _firestore
           .collection('users')
           .doc(user.uid)
@@ -430,7 +423,6 @@ abstract class _BookStore with Store {
     }
   }
 
-  // Alternar Favorito
   @action
   Future<void> toggleFavorite(Book book) async {
     final user = FirebaseAuth.instance.currentUser;
@@ -452,7 +444,6 @@ abstract class _BookStore with Store {
     }
   }
 
-  // Alternar Marcado (Bookmark)
   @action
   Future<void> toggleBookmark(Book book) async {
     final user = FirebaseAuth.instance.currentUser;

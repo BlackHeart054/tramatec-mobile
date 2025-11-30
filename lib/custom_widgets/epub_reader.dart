@@ -19,7 +19,6 @@ class EpubReaderPage extends StatefulWidget {
 class _EpubReaderPageState extends State<EpubReaderPage> {
   late EpubController _epubController;
 
-  // Chave para controlar a abertura do Drawer manualmente
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
   bool _isLoading = true;
@@ -40,7 +39,6 @@ class _EpubReaderPageState extends State<EpubReaderPage> {
 
     _epubController = EpubController(
       document: EpubDocument.openFile(file),
-      // Você pode adicionar epubCfi aqui se quiser salvar o progresso
     );
 
     if (mounted) {
@@ -66,14 +64,13 @@ class _EpubReaderPageState extends State<EpubReaderPage> {
     }
 
     return Scaffold(
-      key: _scaffoldKey, // <--- Importante: Atribuímos a chave aqui
+      key: _scaffoldKey,
       backgroundColor: const Color(0xFF0C101C),
       appBar: AppBar(
         backgroundColor: const Color(0xFF0C101C),
         title: EpubViewActualChapter(
           controller: _epubController,
           builder: (chapterValue) => Text(
-            // CORREÇÃO 1: 'title' em minúsculo
             chapterValue?.chapter?.Title?.replaceAll('\n', '').trim() ??
                 'Leitura',
             style: const TextStyle(color: Colors.white, fontSize: 16),
@@ -88,24 +85,19 @@ class _EpubReaderPageState extends State<EpubReaderPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.format_list_bulleted, color: Colors.white),
-            // CORREÇÃO 2: Usamos a chave para abrir o drawer
             onPressed: () => _scaffoldKey.currentState?.openEndDrawer(),
           ),
         ],
       ),
-      // Usamos endDrawer para abrir no lado direito (padrão de livros)
-      // Se preferir na esquerda, mude para 'drawer' e ajuste o onPressed acima para openDrawer()
       endDrawer: Drawer(
         backgroundColor: const Color(0xFF191D3A),
         child: EpubViewTableOfContents(
           controller: _epubController,
           itemBuilder: (context, index, chapter, itemCount) {
             return ListTile(
-              // CORREÇÃO 3: 'title' em minúsculo
               title: Text(chapter.title?.trim() ?? "Capítulo ${index + 1}",
                   style: const TextStyle(color: Colors.white)),
               onTap: () {
-                // CORREÇÃO 4: 'startIndex' em minúsculo e uso do método correto jumpTo
                 _epubController.jumpTo(index: chapter.startIndex);
                 Navigator.pop(context);
               },

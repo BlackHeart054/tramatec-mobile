@@ -3,10 +3,9 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:tramatec_app/config/service_locator.dart';
 import 'package:tramatec_app/custom_widgets/book_card.dart';
 import 'package:tramatec_app/custom_widgets/epub_reader.dart';
-import 'package:tramatec_app/models/book_model.dart'; // Import necessário para a List<Book>
+import 'package:tramatec_app/models/book_model.dart';
 import 'package:tramatec_app/stores/book_store.dart';
 
-// Enum para definir qual lista vamos mostrar
 enum BookSectionType { favorites, bookmarks }
 
 class SectionBooksScreen extends StatefulWidget {
@@ -41,7 +40,6 @@ class _SectionBooksScreenState extends State<SectionBooksScreen> {
       ),
       body: Observer(
         builder: (_) {
-          // Lógica para selecionar a lista correta da Store
           List<Book> booksToShow;
           String emptyMessage;
           IconData emptyIcon;
@@ -56,13 +54,11 @@ class _SectionBooksScreenState extends State<SectionBooksScreen> {
             emptyIcon = Icons.bookmark_border;
           }
 
-          // Estado de Carregamento
           if (bookStore.isLoading && booksToShow.isEmpty) {
             return const Center(
                 child: CircularProgressIndicator(color: Colors.white));
           }
 
-          // Estado Vazio
           if (booksToShow.isEmpty) {
             return Center(
               child: Column(
@@ -79,7 +75,6 @@ class _SectionBooksScreenState extends State<SectionBooksScreen> {
             );
           }
 
-          // Grid de Livros
           return GridView.builder(
             padding: const EdgeInsets.all(16),
             itemCount: booksToShow.length,
@@ -94,7 +89,6 @@ class _SectionBooksScreenState extends State<SectionBooksScreen> {
               return BookCard(
                 book: book,
                 onTap: () async {
-                  // Reutiliza a lógica de abrir livro da Store
                   try {
                     final path = await bookStore.openBook(book);
                     if (context.mounted) {
